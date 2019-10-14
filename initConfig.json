@@ -2,7 +2,7 @@
 	"baseaddr": "0x7a2dc129b3d794e4e8a009c83ffd7a2412f5e326",
 	"privatekey": "86736091a441dffeb8656e731474433aaf531c4adab0497fa38d36215f44f18d",
 	"scs": [
-		"0xB9fEee384f9383BbbEc0e762aeC468Df38e3c728"
+		"0x1209a141d7f756d6bFaCB241788797Acac79f242"
 	],
 	"vnodeVia": "0x5e2e03d1fb8aed9dbbd939fcc1a9f2aa9afdfde4",
 	"vnodeUri": "http://127.0.0.1:8545",
@@ -12,7 +12,9 @@
 	"minVnodeDeposit": 1,
 	"minScsDeposit": 1,
 	"microChainDeposit": 1,
-	"addScs": [],
-	"monitorAddr": "0xd5D72c9da54432f84343193e8D9E12405cF482F7",
+	"addScs": [
+		"0x84E0Bb75B515aC41768d4F3b9C9B348e576D3738"
+	],
+	"monitorAddr": "0x115e0ff8EA5a9797d5F8c2498C73B779bb259889",
 	"monitorLink": "localhost:2345"
 }
