@@ -7,12 +7,13 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import VueResource from 'vue-resource'
 import Vuex from 'vuex'
+import Chain3 from 'chain3'
 Vue.use(ElementUI)
 Vue.use(VueResource)
 Vue.use(Vuex)
 
 Vue.config.productionTip = false
-
+window.chain3 = new Chain3(new Chain3.providers.HttpProvider("https://mtnode1.jccdex.cn"));
 /* eslint-disable no-new */
 new Vue({
     el: '#app',

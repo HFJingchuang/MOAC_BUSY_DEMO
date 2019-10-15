@@ -242,7 +242,7 @@
           <el-row :gutter="5">
             <el-col :span="8" :push="3">
               <div class="grid-content" style="text-align:left;width:800px;">
-                <span style="color:#409EFF">microChainAddr：</span>
+                <span style="color:#409EFF">MicroChain Address：</span>
                 <span style="color:#909399">{{contractData[2].microChainAddr}}</span>
               </div>
               <div class="grid-content" style="text-align:left;width:800px">
@@ -250,66 +250,84 @@
                 <span style="color:#909399">{{sender}}</span>
               </div>
               <div class="grid-content" style="text-align:left;width:800px">
-                <span style="color:#409EFF">blockNumber：</span>
-                <span style="color:#909399">{{blockNumber}}</span>
+                <span style="color:#409EFF">MicroChain Balance：</span>
+                <span style="color:#909399">{{getBalance(contractData[2].microChainAddr)}}</span>
               </div>
             </el-col>
             <el-col :span="8" :push="3">
               <div class="grid-content" style="text-align:left;width:800px">
                 <span style="color:#409EFF">BondLimit：</span>
-                <span style="color:#909399">{{BondLimit}}</span>
+                <span style="color:#909399">{{format(BondLimit)}}</span>
               </div>
               <div class="grid-content" style="text-align:left;width:800px">
                 <span style="color:#409EFF">BlockReward：</span>
-                <span style="color:#909399">{{BlockReward}}</span>
+                <span style="color:#909399">{{format(BlockReward)}}</span>
               </div>
               <div class="grid-content" style="text-align:left;width:800px">
                 <span style="color:#409EFF">TxReward：</span>
-                <span style="color:#909399">{{TxReward}}</span>
+                <span style="color:#909399">{{format(TxReward)}}</span>
               </div>
             </el-col>
             <el-col :span="8" :push="1">
               <div class="grid-content" style="text-align:left;width:800px">
                 <span style="color:#409EFF">ViaReward：</span>
-                <span style="color:#909399">{{ViaReward}}</span>
+                <span style="color:#909399">{{format(ViaReward)}}</span>
               </div>
               <div class="grid-content" style="text-align:left;width:800px">
                 <span style="color:#409EFF">scsCount：</span>
-                <span style="color:#909399">{{scsCount}}</span>
+                <span style="color:#909399">{{scsCount.length}}</span>
               </div>
             </el-col>
           </el-row>
-          <div class="blockHead" style="text-align:left;">
-            <span>应用链最新区块信息</span>
-          </div>
-          <div class="box-card" style="overflow:auto">
-            <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
-              <div v-for="i in count" :key="i" class="text item">
-                <el-row>
-                  <el-col>
-                    <div style="text-align:left;width:800px;">
-                      <span style="color:#409EFF">blockNumber：</span>
-                      <span style="color:#909399">{{blocks[i-1].Header.number}}</span>
-                    </div>
-                    <div style="text-align:left;width:800px">
-                      <span style="color:#409EFF">time：</span>
-                      <span style="color:#909399">{{formatTime(blocks[i-1].Header.timestamp)}}</span>
-                    </div>
-                    <div style="text-align:left;width:800px">
-                      <span style="color:#409EFF">miner：</span>
-                      <span style="color:#909399">{{blocks[i-1].Header.miner}}</span>
-                    </div>
-                    <div style="text-align:left;width:800px">
-                      <span style="color:#409EFF">blockHash：</span>
-                      <span style="color:#909399">{{blocks[i-1].Hash}}</span>
-                    </div>
-                  </el-col>
-                </el-row>
+          <el-row>
+            <el-col :span="8" :offset="2">
+              <div class="blockHead" style="text-align:left;">
+                <span>应用链最新区块信息</span>
+                <span style="color:#409EFF;font-weight:bold;font-size:25px">{{blockNumber}}</span>
               </div>
-              <p v-if="loading">加载中...</p>
-              <p v-if="noMore">没有更多了</p>
-            </ul>
-          </div>
+              <div class="box-card" style="overflow:auto">
+                <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
+                  <div v-for="i in count" :key="i" class="text item">
+                    <el-row>
+                      <el-col>
+                        <div style="text-align:left;width:800px;">
+                          <span style="color:#409EFF">blockNumber：</span>
+                          <span style="color:#909399">{{blocks[i-1].Header.number}}</span>
+                        </div>
+                        <div style="text-align:left;width:800px">
+                          <span style="color:#409EFF">time：</span>
+                          <span style="color:#909399">{{formatTime(blocks[i-1].Header.timestamp)}}</span>
+                        </div>
+                        <div style="text-align:left;width:800px">
+                          <span style="color:#409EFF">miner：</span>
+                          <span style="color:#909399">{{blocks[i-1].Header.miner}}</span>
+                        </div>
+                        <div style="text-align:left;width:800px">
+                          <span style="color:#409EFF">blockHash：</span>
+                          <span style="color:#909399">{{blocks[i-1].Hash}}</span>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <p v-if="loading">加载中...</p>
+                  <p v-if="noMore">没有更多了</p>
+                </ul>
+              </div>
+            </el-col>
+            <el-col :span="8" :offset="3">
+              <div class="scsHead" style="text-align:left;">
+                <span>应用链SCS</span>
+              </div>
+              <div v-for="i in scsCount.length" :key="i" class="text item">
+                <div style="text-align:left;width:800px;">
+                  <span style="color:#409EFF">{{scsCount[i-1]}}</span>
+                </div>
+                <div style="text-align:left;width:800px;">
+                  <span>{{getBalance(scsCount[i-1])}} Moac</span>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
         </el-tab-pane>
       </el-tabs>
     </section>
@@ -446,7 +464,7 @@ export default {
       BlockReward: "",
       TxReward: "",
       ViaReward: "",
-      scsCount: "",
+      scsCount: [],
       start: 0,
       end: 0,
       count: 0,
@@ -831,6 +849,27 @@ export default {
       this.BlockReward = response.body.result.BlockReward;
       this.TxReward = response.body.result.TxReward;
       this.ViaReward = response.body.result.ViaReward;
+      this.scsCount = response.body.result.ScsList;
+    },
+    async GetScsId() {
+      const response = await superagent
+        .post("http://" + this.monitor.monitorLink + "/rpc")
+        .set("Content-Type", "application/json")
+        .accept("application/json")
+        .send({
+          jsonrpc: "2.0",
+          id: 0,
+          method: "ScsRPCMethod.GetScsId"
+        })
+        .timeout(10000)
+        .catch(e => {
+          console.log(e);
+        });
+      this.sender = response.body.result.Sender;
+      this.BondLimit = response.body.result.BondLimit;
+      this.BlockReward = response.body.result.BlockReward;
+      this.TxReward = response.body.result.TxReward;
+      this.ViaReward = response.body.result.ViaReward;
       this.scsCount = response.body.result.ScsList.length;
     },
     load() {
@@ -861,6 +900,13 @@ export default {
       let s = date.getSeconds();
       s = s < 10 ? "0" + s : s;
       return y + "-" + MM + "-" + d + " " + h + ":" + m + ":" + s;
+    },
+    getBalance(address) {
+      let balance = chain3.mc.getBalance(address).toString();
+      return chain3.fromSha(balance, "mc");
+    },
+    format(count) {
+      return chain3.fromSha(count, "mc");
     }
   },
   mounted() {
@@ -980,11 +1026,16 @@ export default {
   width: 680px;
   height: 420px;
   margin-top: 10px;
-  margin-left: 160px;
+  // margin-left: 160px;
 }
 
 .blockHead {
   margin-top: 40px;
-  margin-left: 200px;
+  margin-left: 40px;
+}
+
+.scsHead {
+  margin-top: 40px;
+  margin-bottom: 30px;
 }
 </style>
