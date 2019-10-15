@@ -97,7 +97,7 @@
         "dateformat": "^2.0.0",
         "debug": "~2.6.9",
         "ejs": "~2.6.1",
-        "element-ui": "^2.10.0",
+        "element-ui": "^2.12.0",
         "ethereumjs-wallet": "^0.6.3",
         "express": "~4.16.1",
         "http-errors": "~1.6.3",
