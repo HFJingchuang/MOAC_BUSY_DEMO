@@ -241,39 +241,66 @@
         <el-tab-pane label="应用链浏览器" name="explore">
           <el-row :gutter="5">
             <el-col :span="8" :push="3">
-              <div class="grid-content" style="text-align:left;width:800px;">
+              <div class="grid-content" style="text-align:left;width:800px;;padding-top:5px;">
                 <span style="color:#409EFF">MicroChain Address：</span>
                 <span style="color:#909399">{{contractData[2].microChainAddr}}</span>
               </div>
-              <div class="grid-content" style="text-align:left;width:800px">
+              <div class="grid-content" style="text-align:left;width:800px;padding-top:5px;">
                 <span style="color:#409EFF">sender：</span>
                 <span style="color:#909399">{{sender}}</span>
               </div>
-              <div class="grid-content" style="text-align:left;width:800px">
+              <div class="grid-content" style="text-align:left;width:800px;padding-top:5px;">
                 <span style="color:#409EFF">MicroChain Balance：</span>
                 <span style="color:#909399">{{getBalance(contractData[2].microChainAddr)}}</span>
               </div>
             </el-col>
-            <el-col :span="8" :push="3">
-              <div class="grid-content" style="text-align:left;width:800px">
-                <span style="color:#409EFF">BondLimit：</span>
-                <span style="color:#909399">{{format(BondLimit)}}</span>
-              </div>
-              <div class="grid-content" style="text-align:left;width:800px">
-                <span style="color:#409EFF">BlockReward：</span>
-                <span style="color:#909399">{{format(BlockReward)}}</span>
-              </div>
-              <div class="grid-content" style="text-align:left;width:800px">
-                <span style="color:#409EFF">TxReward：</span>
-                <span style="color:#909399">{{format(TxReward)}}</span>
-              </div>
+            <el-col :span="8" :push="4">
+              <el-tooltip placement="right" effect="light">
+                <div slot="content">
+                  加入一个appChain的最低存款额，以moac为单位，默认为每个appChain 2 moac;
+                  <br />如果appChain的要求高于这个限制，那么SCS不会加入；
+                </div>
+                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+                  <span style="color:#409EFF">BondLimit：</span>
+                  <span style="color:#909399">{{format(BondLimit)}}</span>
+                </div>
+              </el-tooltip>
+              <el-tooltip placement="right" effect="light">
+                <div slot="content">
+                  应用链出块奖励：
+                  <br />每天有86400秒，每10秒出一个块，每天有8640个块
+                  <br />BlockReward=0.0005 moac，即每天大概消耗 8640 * 0.0005 =4.32 moac。
+                </div>
+                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+                  <span style="color:#409EFF">BlockReward：</span>
+                  <span style="color:#909399">{{format(BlockReward)}}</span>
+                </div>
+              </el-tooltip>
+              <el-tooltip placement="bottom" effect="light">
+                <div slot="content">
+                  应用链打包交易奖励：
+                  <br />奖励给SCC节点 = TxReward * 打包交易数量
+                  <br />假设10TPS，相当于100tx/每个块，则每天消耗： 0.0000001 * 8640 * 100 = 0.0864 moac
+                </div>
+                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+                  <span style="color:#409EFF">TxReward：</span>
+                  <span style="color:#909399">{{format(TxReward)}}</span>
+                </div>
+              </el-tooltip>
             </el-col>
             <el-col :span="8" :push="1">
-              <div class="grid-content" style="text-align:left;width:800px">
-                <span style="color:#409EFF">ViaReward：</span>
-                <span style="color:#909399">{{format(ViaReward)}}</span>
-              </div>
-              <div class="grid-content" style="text-align:left;width:800px">
+              <el-tooltip placement="bottom" effect="light">
+                <div slot="content">
+                  应用链刷新奖励：
+                  <br />奖励vnode节点，每一个SCS节点都会和某一个vnode节点链接
+                  <br />假设100个块/flush一次，则每天消耗： 0.01 * 8640 / 100 = 0.864 moac
+                </div>
+                <div class="grid-content" style="text-align:left;width:150px;padding-top:5px;">
+                  <span style="color:#409EFF">ViaReward：</span>
+                  <span style="color:#909399">{{format(ViaReward)}}</span>
+                </div>
+              </el-tooltip>
+              <div class="grid-content" style="text-align:left;width:100px;padding-top:5px;">
                 <span style="color:#409EFF">scsCount：</span>
                 <span style="color:#909399">{{scsCount.length}}</span>
               </div>
@@ -283,27 +310,33 @@
             <el-col :span="8" :offset="2">
               <div class="blockHead" style="text-align:left;">
                 <span>应用链最新区块信息</span>
-                <span style="color:#409EFF;font-weight:bold;font-size:25px">{{blockNumber}}</span>
+                <span
+                  style="margin-left:400px;color:#409EFF;font-weight:bold;font-size:25px"
+                >{{blockNumber}}</span>
               </div>
               <div class="box-card" style="overflow:auto">
                 <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
                   <div v-for="i in count" :key="i" class="text item">
                     <el-row>
                       <el-col>
-                        <div style="text-align:left;width:800px;">
-                          <span style="color:#409EFF">blockNumber：</span>
+                        <div style="text-align:left;">
+                          <span style="color:#409EFF">BlockNumber：</span>
                           <span style="color:#909399">{{blocks[i-1].Header.number}}</span>
                         </div>
-                        <div style="text-align:left;width:800px">
-                          <span style="color:#409EFF">time：</span>
+                        <div style="text-align:left;">
+                          <span style="color:#409EFF">Txs：</span>
+                          <span style="color:#909399">{{blocks[i-1].Txs.length}}</span>
+                        </div>
+                        <div style="text-align:left;">
+                          <span style="color:#409EFF">Time：</span>
                           <span style="color:#909399">{{formatTime(blocks[i-1].Header.timestamp)}}</span>
                         </div>
-                        <div style="text-align:left;width:800px">
-                          <span style="color:#409EFF">miner：</span>
+                        <div style="text-align:left;">
+                          <span style="color:#409EFF">Miner：</span>
                           <span style="color:#909399">{{blocks[i-1].Header.miner}}</span>
                         </div>
-                        <div style="text-align:left;width:800px">
-                          <span style="color:#409EFF">blockHash：</span>
+                        <div style="text-align:left;">
+                          <span style="color:#409EFF">BlockHash：</span>
                           <span style="color:#909399">{{blocks[i-1].Hash}}</span>
                         </div>
                       </el-col>
@@ -314,7 +347,7 @@
                 </ul>
               </div>
             </el-col>
-            <el-col :span="8" :offset="3">
+            <el-col :span="8" style="margin-left:250px;">
               <div class="scsHead" style="text-align:left;">
                 <span>应用链SCS</span>
               </div>
@@ -1030,6 +1063,7 @@ export default {
 }
 
 .blockHead {
+  width: 640px;
   margin-top: 40px;
   margin-left: 40px;
 }
