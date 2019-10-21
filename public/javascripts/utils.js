@@ -156,7 +156,7 @@ function waitBlockForTransaction(transactionHash) {
             break;
         } else if (receipt && chain3.fromDecimal(receipt.status) == 0) {
             logger.info("transaction failed!");
-            return false;
+            break;
         }
         logger.info("block " + chain3.mc.blockNumber + "...");
         sleep(50000);
@@ -198,8 +198,8 @@ function deployscspoolWithAddr() {
     var subchainprotocolbaseContract = chain3.mc.contract(JSON.parse(abi));
     logger.info(path.resolve(__dirname, "../contract.json"))
     var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
-    logger.info(config.data[1]['scsPoolAddr']);
-    scsPool = subchainprotocolbaseContract.at(config.data[1]['scsPoolAddr']);
+    logger.info(config['scsPoolAddr']);
+    scsPool = subchainprotocolbaseContract.at(config['scsPoolAddr']);
     logger.info("scsPool created at address:", scsPool.address);
     return scsPool;
 }
@@ -222,7 +222,7 @@ function deployMicroChainWithAddr() {
     // logger.info("SubChainBase abi:", abi);
     var subchainbaseContract = chain3.mc.contract(JSON.parse(abi));
     var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
-    microChain = subchainbaseContract.at(config.data[2]['microChainAddr']);
+    microChain = subchainbaseContract.at(config['microChainAddr']);
     logger.info("microChain created at address:", microChain.address);
     return microChain;
 }

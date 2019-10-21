@@ -67,8 +67,8 @@ async function deploy(req, result, next) {
     }
 
     // clear config.json
-    var contract = { "data": [] };
-    fs.writeFileSync(path.resolve(__dirname, "../../contract.json"), JSON.stringify(contract, null, '\t'), 'utf8');
+    // var contract = { "data": [] };
+    // fs.writeFileSync(path.resolve(__dirname, "../../contract.json"), JSON.stringify(contract, null, '\t'), 'utf8');
 
     // Min balance of the baseaddr needs to be larger than these numbers if all SCSs need to be funded
     // + SCS deposit (10 mc) * SCS number (=5)
@@ -102,7 +102,7 @@ async function deploy(req, result, next) {
     } else {
         // Add balance to microChainAddr for MicroChain running
         logger.info("Add funding to microChain!");
-        logger.info("microChain.address",microChain.address);
+        logger.info("microChain.address", microChain.address);
         utils.addMicroChainFund(microChain.address, microChainDeposit)
         utils.waitBalance(microChain.address, microChainDeposit);
     }
@@ -246,9 +246,14 @@ function addScss(req, res, next) {
 function closeMicroChain(req, res, next) {
     var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
     baseaddr = utils.nconf.get("baseaddr");
-    utils.sendtx(baseaddr, config.data[2]['microChainAddr'], 0, '0x43d726d6');
+    utils.sendtx(baseaddr, config['microChainAddr'], 0, '0x43d726d6');
     // clear config.json
-    var contract = { "data": [] };
+    var contract = {
+        "vnodePoolAddr": "",
+        "scsPoolAddr": "",
+        "microChainAddr": "",
+        "savedHash": ""
+    };
     fs.writeFileSync(path.resolve(__dirname, "../../contract.json"), JSON.stringify(contract, null, '\t'), 'utf8');
     logger.info("waiting for a flush!!!");
     res.send('{"status":"success","msg":"关闭子链成功！"}')
@@ -276,10 +281,10 @@ function getInitConfig(req, res, next) {
 // utils for the program
 // Check if the input address has enough balance for the mc amount
 
-function wirteJson(addJson) {
+function wirteJson(name, value) {
     var contractPath = path.resolve(__dirname, "../../contract.json");
     var config = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
-    config.data.push(addJson);
+    config[name] = value;
     fs.writeFileSync(contractPath, JSON.stringify(config, null, '\t'), 'utf8');
 }
 
@@ -327,7 +332,7 @@ function deployvnodepool() {
 
     // Check for the two POO contract deployments
     var vnodePoolAddr = utils.waitBlockForContract(transHash);
-    wirteJson({ "vnodePoolAddr": vnodePoolAddr });
+    wirteJson("vnodePoolAddr", vnodePoolAddr);
     vnodeprotocolbase = vnodeprotocolbaseContract.at(vnodePoolAddr)
     logger.info("vnodeprotocolbase contract address:", vnodeprotocolbase.address);
 
@@ -380,7 +385,7 @@ function deployscspool() {
     logger.info("SCS protocol is being deployed at transaction HASH: " + transHash);
 
     var scsPoolAddr = utils.waitBlockForContract(transHash);
-    wirteJson({ "scsPoolAddr": scsPoolAddr });
+    wirteJson("scsPoolAddr", scsPoolAddr);
 
     subchainprotocolbase = subchainprotocolbaseContract.at(scsPoolAddr);
     logger.info("subchainprotocolbase contract address:", subchainprotocolbase.address);
@@ -436,7 +441,7 @@ async function deployMicroChain() {
     // );
 
     var types = ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'];
-    var args = [config.data[1]['scsPoolAddr'], config.data[0]['vnodePoolAddr'], min, max, thousandth, flushRound, tokensupply, exchangerate];
+    var args = [config['scsPoolAddr'], config['vnodePoolAddr'], min, max, thousandth, flushRound, tokensupply, exchangerate];
     let parameter = utils.chain3.encodeParams(types, args);
     let rawTx = {
         nonce: utils.chain3.toHex(utils.getNonce(baseaddr)),
@@ -460,11 +465,86 @@ async function deployMicroChain() {
     });
 
     // var microChainAddr = utils.waitBlockForContract(transHash);
-    wirteJson({ "microChainAddr": microChainAddr });
+    wirteJson("microChainAddr", microChainAddr);
     subchainbase = subchainbaseContract.at(microChainAddr);
     logger.info("microChain created at address:", subchainbase.address);
 
     return subchainbase;
+}
+
+// save MicroChain address to the blockChain.
+async function saveMicroChain() {
+
+    let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    let hash = config['savedHash'];
+    let logs;
+    if (hash) {
+        logs = await getSavedMicroChain(hash);
+        //以下为写入数据log
+        let log = {
+            type: "MicroChainAddr",
+            addr: config['microChainAddr'],
+            time: (new Date).getTime(),
+            isClosed: false
+        };
+        logs.push(log);
+    } else {
+        //以下为写入数据log
+        logs = [{
+            type: "MicroChainAddr",
+            addr: config['microChainAddr'],
+            time: (new Date).getTime(),
+            isClosed: false
+        }];
+    }
+
+    //转换log数据格式
+    let str = JSON.stringify(logs);
+    console.log(str);
+    let data = Buffer.from(str).toString('hex');
+    data = '0x' + data;
+    console.log(data);
+
+    let rawTx = {
+        to: microChainDeposit = utils.nconf.get("savedAddr"),
+        nonce: utils.chain3.toHex(utils.getNonce(baseaddr)),
+        gasLimit: utils.chain3.toHex("9000000"),
+        gasPrice: utils.chain3.toHex(utils.chain3.mc.gasPrice),
+        chainId: utils.chain3.toHex(utils.chain3.version.network),
+        data: data
+    };
+
+    let signtx = utils.chain3.signTransaction(rawTx, privatekey);
+    utils.chain3.mc.sendRawTransaction(signtx, function (err, hash) {
+        if (!err) {
+            console.log("succeed: ", hash);
+            wirteJson("savedHash", hash);
+            return hash;
+        } else {
+            console.log("error:", err);
+            console.log('raw tx:', rawTx);
+        }
+    });
+}
+
+// get saved MicroChain address.
+async function getSavedMicroChain() {
+    let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    //获取交易信息
+    let hash = config['savedHash'];
+    return data = await new Promise((resolve, reject) => {
+        utils.chain3.mc.getTransaction(hash, function (e, result) {
+            if (!e) {
+                //console.log(result);
+                inputData = result.input;
+                res_str = Buffer.from(inputData.replace('0x', ''), 'hex').toString();
+                res_json = JSON.parse(res_str);
+                resolve(res_json);
+            } else {
+                reject(e);
+            }
+        });
+    });
 }
 
 module.exports = {

@@ -16,5 +16,6 @@
 		"0x84E0Bb75B515aC41768d4F3b9C9B348e576D3738"
 	],
 	"monitorAddr": "0x115e0ff8EA5a9797d5F8c2498C73B779bb259889",
-	"monitorLink": "localhost:2345"
+	"monitorLink": "localhost:2345",
+	"savedAddr": "0x7a2dc129b3d794e4e8f009c83ffd7a2412f5e325"
 }

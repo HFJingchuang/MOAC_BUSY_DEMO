@@ -151,13 +151,13 @@
               <el-form :model="contractData" ref="contractData">
                 <span>完成部署后应用链合约相关地址</span>
                 <el-form-item label="Vnode矿池合约地址">
-                  <el-input v-model="contractData[0].vnodePoolAddr" type="text" readonly></el-input>
+                  <el-input v-model="contractData.vnodePoolAddr" type="text" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="应用链矿池地址">
-                  <el-input v-model="contractData[1].scsPoolAddr" type="text" readonly></el-input>
+                  <el-input v-model="contractData.scsPoolAddr" type="text" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="应用链合约地址">
-                  <el-input v-model="contractData[2].microChainAddr" type="text" readonly></el-input>
+                  <el-input v-model="contractData.microChainAddr" type="text" readonly></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -241,66 +241,68 @@
         <el-tab-pane label="应用链浏览器" name="explore">
           <el-row :gutter="5">
             <el-col :span="8" :push="3">
-              <div class="grid-content" style="text-align:left;width:800px;;padding-top:5px;">
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
                 <span style="color:#409EFF">MicroChain Address：</span>
-                <span style="color:#909399">{{contractData[2].microChainAddr}}</span>
+                <span style="color:#909399">{{contractData.microChainAddr}}</span>
               </div>
-              <div class="grid-content" style="text-align:left;width:800px;padding-top:5px;">
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
                 <span style="color:#409EFF">sender：</span>
                 <span style="color:#909399">{{sender}}</span>
               </div>
-              <div class="grid-content" style="text-align:left;width:800px;padding-top:5px;">
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
                 <span style="color:#409EFF">MicroChain Balance：</span>
-                <span style="color:#909399">{{getBalance(contractData[2].microChainAddr)}}</span>
+                <span style="color:#909399">{{getBalance(contractData.microChainAddr)}}</span>
               </div>
             </el-col>
             <el-col :span="8" :push="4">
-              <el-tooltip placement="right" effect="light">
-                <div slot="content">
-                  加入一个appChain的最低存款额，以moac为单位，默认为每个appChain 2 moac;
-                  <br />如果appChain的要求高于这个限制，那么SCS不会加入；
-                </div>
-                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">
+                    加入一个appChain的最低存款额，以moac为单位，默认为每个appChain 2 moac;
+                    <br />如果appChain的要求高于这个限制，那么SCS不会加入；
+                  </div>
                   <span style="color:#409EFF">BondLimit：</span>
-                  <span style="color:#909399">{{format(BondLimit)}}</span>
-                </div>
-              </el-tooltip>
-              <el-tooltip placement="right" effect="light">
-                <div slot="content">
-                  应用链出块奖励：
-                  <br />每天有86400秒，每10秒出一个块，每天有8640个块
-                  <br />BlockReward=0.0005 moac，即每天大概消耗 8640 * 0.0005 =4.32 moac。
-                </div>
-                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+                </el-tooltip>
+                <span style="color:#909399">{{format(BondLimit)}}</span>
+              </div>
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">
+                    应用链出块奖励：
+                    <br />每天有86400秒，每10秒出一个块，每天有8640个块
+                    <br />BlockReward=0.0005 moac，即每天大概消耗 8640 * 0.0005 =4.32 moac。
+                  </div>
                   <span style="color:#409EFF">BlockReward：</span>
-                  <span style="color:#909399">{{format(BlockReward)}}</span>
-                </div>
-              </el-tooltip>
-              <el-tooltip placement="bottom" effect="light">
-                <div slot="content">
-                  应用链打包交易奖励：
-                  <br />奖励给SCC节点 = TxReward * 打包交易数量
-                  <br />假设10TPS，相当于100tx/每个块，则每天消耗： 0.0000001 * 8640 * 100 = 0.0864 moac
-                </div>
-                <div class="grid-content" style="text-align:left;width:200px;padding-top:5px;">
+                </el-tooltip>
+
+                <span style="color:#909399">{{format(BlockReward)}}</span>
+              </div>
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
+                <el-tooltip placement="bottom" effect="light">
+                  <div slot="content">
+                    应用链打包交易奖励：
+                    <br />奖励给SCC节点 = TxReward * 打包交易数量
+                    <br />假设10TPS，相当于100tx/每个块，则每天消耗： 0.0000001 * 8640 * 100 = 0.0864 moac
+                  </div>
                   <span style="color:#409EFF">TxReward：</span>
-                  <span style="color:#909399">{{format(TxReward)}}</span>
-                </div>
-              </el-tooltip>
+                </el-tooltip>
+
+                <span style="color:#909399">{{format(TxReward)}}</span>
+              </div>
             </el-col>
             <el-col :span="8" :push="1">
-              <el-tooltip placement="bottom" effect="light">
-                <div slot="content">
-                  应用链刷新奖励：
-                  <br />奖励vnode节点，每一个SCS节点都会和某一个vnode节点链接
-                  <br />假设100个块/flush一次，则每天消耗： 0.01 * 8640 / 100 = 0.864 moac
-                </div>
-                <div class="grid-content" style="text-align:left;width:150px;padding-top:5px;">
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
+                <el-tooltip placement="bottom" effect="light">
+                  <div slot="content">
+                    应用链刷新奖励：
+                    <br />奖励vnode节点，每一个SCS节点都会和某一个vnode节点链接
+                    <br />假设100个块/flush一次，则每天消耗： 0.01 * 8640 / 100 = 0.864 moac
+                  </div>
                   <span style="color:#409EFF">ViaReward：</span>
-                  <span style="color:#909399">{{format(ViaReward)}}</span>
-                </div>
-              </el-tooltip>
-              <div class="grid-content" style="text-align:left;width:100px;padding-top:5px;">
+                </el-tooltip>
+                <span style="color:#909399">{{format(ViaReward)}}</span>
+              </div>
+              <div class="grid-content" style="text-align:left;padding-top:5px;">
                 <span style="color:#409EFF">scsCount：</span>
                 <span style="color:#909399">{{scsCount.length}}</span>
               </div>
@@ -347,15 +349,15 @@
                 </ul>
               </div>
             </el-col>
-            <el-col :span="8" style="margin-left:250px;">
+            <el-col :span="6" style="margin-left:250px;">
               <div class="scsHead" style="text-align:left;">
                 <span>应用链SCS</span>
               </div>
               <div v-for="i in scsCount.length" :key="i" class="text item">
-                <div style="text-align:left;width:800px;">
+                <div style="text-align:left;">
                   <span style="color:#409EFF">{{scsCount[i-1]}}</span>
                 </div>
-                <div style="text-align:left;width:800px;">
+                <div style="text-align:left;">
                   <span>{{getBalance(scsCount[i-1])}} Moac</span>
                 </div>
               </div>
@@ -476,17 +478,11 @@ export default {
         monitorLink: [{ required: true, message: "不可为空", trigger: "blur" }]
       },
       url: "http://localhost:3000/scss",
-      contractData: [
-        {
-          vnodePoolAddr: "" // Vnode矿池合约地址
-        },
-        {
-          scsPoolAddr: "" // 子链矿池地址
-        },
-        {
-          microChainAddr: "" // 子链合约地址
-        }
-      ],
+      contractData: {
+        vnodePoolAddr: "", // Vnode矿池合约地址
+        scsPoolAddr: "", // 子链矿池地址
+        microChainAddr: "" // 子链合约地址
+      },
       deployButton: false,
       isshow: false,
       alertMsg: "开始部署，此过程需要一段时间，请耐心等待...",
@@ -557,9 +553,9 @@ export default {
         if (valid) {
           console.log(this.contractData);
           if (
-            this.contractData[0].vnodePoolAddr != "" &&
-            this.contractData[1].scsPoolAddr != "" &&
-            this.contractData[2].microChainAddr != ""
+            this.contractData.vnodePoolAddr != "" &&
+            this.contractData.scsPoolAddr != "" &&
+            this.contractData.microChainAddr != ""
           ) {
             this.$confirm(
               "当前部署已完成，继续重新部署会覆盖当前已生成的相关合约地址, 是否继续?",
@@ -747,15 +743,15 @@ export default {
     getContact() {
       this.$http.get(this.url + "/getContract").then(
         function(res) {
-          console.log(res.body);
-          if (res.body.data.length === 3) {
+          console.log("getContact===>", res.body);
+          if (res.body.data) {
             this.contractData = res.body.data;
           } else {
-            this.contractData = [
-              { vnodePoolAddr: "" },
-              { scsPoolAddr: "" },
-              { microChainAddr: "" }
-            ];
+            this.contractData = {
+              vnodePoolAddr: "",
+              scsPoolAddr: "",
+              microChainAddr: ""
+            };
           }
         },
         function() {
@@ -808,7 +804,7 @@ export default {
           jsonrpc: "2.0",
           id: 0,
           method: "ScsRPCMethod.GetBlockNumber",
-          params: { SubChainAddr: this.contractData[2].microChainAddr }
+          params: { SubChainAddr: this.contractData.microChainAddr }
         })
         .timeout(10000)
         .catch(e => {
@@ -834,7 +830,7 @@ export default {
           params: {
             Start: start,
             end: end,
-            SubChainAddr: this.contractData[2].microChainAddr
+            SubChainAddr: this.contractData.microChainAddr
           }
         })
         .timeout(10000)
@@ -871,7 +867,7 @@ export default {
           jsonrpc: "2.0",
           id: 0,
           method: "ScsRPCMethod.GetSubChainInfo",
-          params: { SubChainAddr: this.contractData[2].microChainAddr }
+          params: { SubChainAddr: this.contractData.microChainAddr }
         })
         .timeout(10000)
         .catch(e => {
@@ -935,6 +931,7 @@ export default {
       return y + "-" + MM + "-" + d + " " + h + ":" + m + ":" + s;
     },
     getBalance(address) {
+      console.log("address", address);
       let balance = chain3.mc.getBalance(address).toString();
       return chain3.fromSha(balance, "mc");
     },
