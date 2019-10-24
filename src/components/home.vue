@@ -344,6 +344,9 @@
                   style="margin-left:400px;color:#409EFF;font-weight:bold;font-size:25px"
                 >{{blockNumber}}</span>
               </div>
+              <div v-if="!hasBlock" style="margin-top:20px;font-size:15px;">
+                <span>暂未获取出块信息，请稍等。。。</span>
+              </div>
               <div v-if="hasBlock" class="box-card" style="overflow:auto">
                 <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="isScroll">
                   <div v-for="i in count" :key="i" class="text item">

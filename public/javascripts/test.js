@@ -4,6 +4,7 @@ var dateformat = require('dateformat');
 var utils = require('./utils.js');
 var fs = require('fs');
 var nconf = require('nconf');
+var schedule = require('node-schedule');
 
 var baseaddr = utils.nconf.get("baseaddr");
 var privatekey = utils.nconf.get("privatekey");
@@ -11,6 +12,7 @@ var privatekey = utils.nconf.get("privatekey");
 // saveMicroChain();
 getSavedMicroChain();
 // changejson();
+// scheduleCronstyle();
 
 function connectSsh() {
     var filePath = path.resolve(__dirname, "../../logs/");
@@ -132,4 +134,55 @@ async function changejson() {
         console.log(logs);
         // reSaveMicroChain(logs);
     }
+}
+
+
+function clearMicroChain() {
+
+    let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    let hash = config['savedHash'];
+    if (hash) {
+        // let logs = await getSavedMicroChain(hash);
+        let logs = [{
+            type: 'MicroChainAddr',
+            addr: '0xee8d88b1a46e67fb2dbcb595f6693df51c2b3b7c',
+            time: 1571878882000
+        }, {
+            type: 'MicroChainAddr',
+            addr: '0xee8d88b1a46e67fb2dbcb595f6693df51c2b3b7c',
+            time: 1571888964664
+        }, {
+            type: 'MicroChainAddr',
+            addr: '0xee8d88b1a46e67fb2dbcb595f6693df51c2b3b7c',
+            time: 1571868082000
+        }, {
+            type: 'MicroChainAddr',
+            addr: '0xee8d88b1a46e67fb2dbcb595f6693df51c2b3b7c',
+            time: 1571902500012
+        }];
+        for (var i = logs.length - 1; i >= 0; i--) {
+            let log = logs[i];
+            let time = log["time"];
+            let now = (new Date).getTime();
+            let hours = (now - time) / 3600000;
+            console.log(hours);
+            if (hours >= 4) {
+                logs.splice(i, 1);
+            }
+        }
+        console.log(logs);
+        // reSaveMicroChain(logs);
+    }
+}
+
+function scheduleCronstyle() {
+    // 每隔小时执行一次应用链清理
+    var rule = new schedule.RecurrenceRule();
+    // rule.hour = [0, 4, 8, 12, 16, 20];
+    rule.minute = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+    console.log('scheduleCronstyle:start' + new Date().getMinutes());
+    schedule.scheduleJob(rule, () => {
+        console.log('scheduleCronstyle:' + new Date().getMinutes());
+        clearMicroChain();
+    });
 }

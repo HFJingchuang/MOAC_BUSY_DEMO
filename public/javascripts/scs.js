@@ -25,6 +25,7 @@ var solc = require('solc'); //only 0.4.24 version should be used, npm install so
 var utils = require('./utils.js');
 var path = require('path');
 var logger = require('./logger');
+var schedule = require('node-schedule');
 
 //===============Setup the Parameters==========================================
 // need to have a valid account to use for contracts deployment
@@ -596,6 +597,45 @@ async function getSavedMicroChain() {
         });
     });
 }
+
+// clear the MicroChain.
+async function clearMicroChain() {
+
+    let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    let hash = config['savedHash'];
+    if (hash) {
+        let logs = await getSavedMicroChain(hash);
+        let length = logs.length;
+        if (length === 0) {
+            return;
+        }
+        for (var i = logs.length - 1; i >= 0; i--) {
+            let log = logs[i];
+            let time = log["time"];
+            let now = (new Date).getTime();
+            let hours = (now - time) / 3600000;
+            if (hours >= 4) {
+                logs.splice(i, 1);
+            }
+        }
+        if (length > logs.length) {
+            reSaveMicroChain(logs);
+        }
+    }
+}
+
+function scheduleCronstyle() {
+    // 每隔4小时执行一次应用链清理
+    var rule = new schedule.RecurrenceRule();
+    rule.hour = [0, 4, 8, 12, 16, 20];
+    console.log('scheduleCronstyle-start:', new Date().getHours());
+    schedule.scheduleJob(rule, () => {
+        console.log('scheduleCronstyle-do:', new Date().getHours());
+        clearMicroChain();
+    });
+}
+
+scheduleCronstyle();
 
 module.exports = {
     deploy: deploy,
