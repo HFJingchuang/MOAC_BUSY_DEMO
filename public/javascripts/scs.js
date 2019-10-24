@@ -163,7 +163,7 @@ async function deploy(req, result, next) {
     }
 
     utils.registerClose(microChain.address);
-
+    saveMicroChain();
     logger.info("all Done!!!");
     result.send('{"status":"success", "msg":"部署完成"}');
 }
@@ -243,26 +243,43 @@ function addScss(req, res, next) {
     res.send('{"status":"success","msg":"添加子链成功！"}')
 }
 
-function closeMicroChain(req, res, next) {
+async function closeMicroChain(req, res, next) {
     var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
     baseaddr = utils.nconf.get("baseaddr");
-    utils.sendtx(baseaddr, config['microChainAddr'], 0, '0x43d726d6');
+    let microChainAddr = config['microChainAddr'];
+    utils.sendtx(baseaddr, microChainAddr, 0, '0x43d726d6');
     // clear config.json
     var contract = {
         "vnodePoolAddr": "",
         "scsPoolAddr": "",
         "microChainAddr": "",
-        "savedHash": ""
+        "savedHash": config["savedHash"]
     };
     fs.writeFileSync(path.resolve(__dirname, "../../contract.json"), JSON.stringify(contract, null, '\t'), 'utf8');
     logger.info("waiting for a flush!!!");
+
+    let hash = config['savedHash'];
+    if (hash) {
+        let logs = await getSavedMicroChain(hash);
+        for (var i = 0; i < logs.length; i++) {
+            let log = logs[i];
+            if (log["addr"] === microChainAddr) {
+                logs.splice(i, 1);
+                break;
+            }
+        }
+        reSaveMicroChain(logs);
+    }
     res.send('{"status":"success","msg":"关闭子链成功！"}')
 }
 
 function config(req, res, next) {
+    let newConfig = req.body;
     var configPath = path.resolve(__dirname, "../../initConfig.json");
-    fs.writeFileSync(configPath, JSON.stringify(req.body, null, '\t'), 'utf8');
-    res.send('{code:0,msg:"init config success!"}')
+    var config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    newConfig['savedAddr'] = config["savedAddr"];
+    fs.writeFileSync(configPath, JSON.stringify(newConfig, null, '\t'), 'utf8');
+    res.send('{ code: 0, msg: "init config success!" }')
 }
 
 function getContract(req, res, next) {
@@ -484,8 +501,7 @@ async function saveMicroChain() {
         let log = {
             type: "MicroChainAddr",
             addr: config['microChainAddr'],
-            time: (new Date).getTime(),
-            isClosed: false
+            time: (new Date).getTime()
         };
         logs.push(log);
     } else {
@@ -494,7 +510,6 @@ async function saveMicroChain() {
             type: "MicroChainAddr",
             addr: config['microChainAddr'],
             time: (new Date).getTime(),
-            isClosed: false
         }];
     }
 
@@ -519,12 +534,47 @@ async function saveMicroChain() {
         if (!err) {
             console.log("succeed: ", hash);
             wirteJson("savedHash", hash);
-            return hash;
         } else {
             console.log("error:", err);
             console.log('raw tx:', rawTx);
         }
     });
+
+}
+
+// re-save MicroChain address to the blockChain.
+async function reSaveMicroChain(logs) {
+
+    //转换log数据格式
+    let str = JSON.stringify(logs);
+    console.log(str);
+    let data = Buffer.from(str).toString('hex');
+    data = '0x' + data;
+
+    let rawTx = {
+        to: microChainDeposit = utils.nconf.get("savedAddr"),
+        nonce: utils.chain3.toHex(utils.getNonce(baseaddr)),
+        gasLimit: utils.chain3.toHex("9000000"),
+        gasPrice: utils.chain3.toHex(utils.chain3.mc.gasPrice),
+        chainId: utils.chain3.toHex(utils.chain3.version.network),
+        data: data
+    };
+
+    let signtx = utils.chain3.signTransaction(rawTx, privatekey);
+    await new Promise((resolve, reject) => {
+        utils.chain3.mc.sendRawTransaction(signtx, function (err, hash) {
+            if (!err) {
+                console.log("succeed: ", hash);
+                wirteJson("savedHash", hash);
+                resolve(hash);
+            } else {
+                console.log("error:", err);
+                console.log('raw tx:', rawTx);
+                reject(err);
+            }
+        });
+    });
+
 }
 
 // get saved MicroChain address.

@@ -43,8 +43,7 @@ async function saveMicroChain() {
         let log = {
             time: (new Date).getTime(),
             type: "info",
-            msg: nconf.get('microChainAddr'),
-            isClosed: false
+            msg: nconf.get('microChainAddr')
         };
         logs.push(log);
         console.log(logs);
@@ -53,8 +52,7 @@ async function saveMicroChain() {
         logs = [{
             time: (new Date).getTime(),
             type: "info",
-            msg: nconf.get('microChainAddr'),
-            isClosed: false
+            msg: nconf.get('microChainAddr')
         }];
     }
 
@@ -116,9 +114,22 @@ function wirteJson(name, value) {
     fs.writeFileSync(contractPath, JSON.stringify(config, null, '\t'), 'utf8');
 }
 
-function changejson() {
-    var contractPath = path.resolve(__dirname, "../../initConfig.json");
-    var config = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
-    config["rpcLink"] = "000";
-    fs.writeFileSync(contractPath, JSON.stringify(config, null, '\t'), 'utf8');
+async function changejson() {
+    var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    baseaddr = utils.nconf.get("baseaddr");
+    let hash = config['savedHash'];
+    let microChainAddr = config['microChainAddr'];
+    console.log(microChainAddr);
+    if (hash) {
+        let logs = await getSavedMicroChain(hash);
+        for (var i = 0; i < logs.length; i++) {
+            let log = logs[i];
+            if (log["addr"] === microChainAddr) {
+                logs.splice(i, 1);
+                break;
+            }
+        }
+        console.log(logs);
+        // reSaveMicroChain(logs);
+    }
 }

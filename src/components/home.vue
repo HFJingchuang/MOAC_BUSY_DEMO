@@ -1,13 +1,5 @@
 <template>
   <div class="home">
-    <el-alert
-      class="deployInfo"
-      :title="alertMsg"
-      center
-      :closable="false"
-      :type="alertType"
-      v-show="isshow"
-    ></el-alert>
     <section class="head_back"></section>
     <section class="head">
       <div class="topImgBox">
@@ -63,6 +55,15 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="部署应用链出块">
+          <el-alert
+            v-show="isDeploy"
+            class="deployInfo"
+            :title="deployTitle"
+            :type="deployType"
+            center
+            :closable="deployColse"
+            show-icon
+          ></el-alert>
           <div class="content-pane">
             <div class="content-pane-left" style="margin-top: 20px;">
               <el-form
@@ -164,6 +165,15 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="添加新的Scs节点">
+          <el-alert
+            v-show="isAdd"
+            class="deployInfo"
+            :title="addTitle"
+            :type="addType"
+            center
+            :closable="addColse"
+            show-icon
+          ></el-alert>
           <div class="content-pane">
             <div class="content-pane-left">
               <div id="list">
@@ -204,6 +214,15 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="添加监听应用链节点">
+          <el-alert
+            v-show="isMonitor"
+            class="deployInfo"
+            :title="monitorTitle"
+            :type="monitorType"
+            center
+            :closable="monitorColse"
+            show-icon
+          ></el-alert>
           <div class="content-pane">
             <div class="content-pane-left" style="margin-top: 20px;">
               <el-form
@@ -234,6 +253,15 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="关闭应用链">
+          <el-alert
+            v-show="isCloseA"
+            class="deployInfo"
+            :title="closeATitle"
+            :type="closeAType"
+            center
+            :closable="closeAColse"
+            show-icon
+          ></el-alert>
           <div class="content-pane">
             <el-button type="primary" @click="onClose" class="button" :disabled="deployButton">一键关闭</el-button>
           </div>
@@ -316,8 +344,8 @@
                   style="margin-left:400px;color:#409EFF;font-weight:bold;font-size:25px"
                 >{{blockNumber}}</span>
               </div>
-              <div class="box-card" style="overflow:auto">
-                <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
+              <div v-if="hasBlock" class="box-card" style="overflow:auto">
+                <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="isScroll">
                   <div v-for="i in count" :key="i" class="text item">
                     <el-row>
                       <el-col>
@@ -344,8 +372,6 @@
                       </el-col>
                     </el-row>
                   </div>
-                  <p v-if="loading">加载中...</p>
-                  <p v-if="noMore">没有更多了</p>
                 </ul>
               </div>
             </el-col>
@@ -420,7 +446,8 @@ export default {
         microChainDeposit: 1, // 子链合约的gas费
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
-        monitorLink: "" // 监听子链的rpc接口
+        monitorLink: "", // 监听子链的rpc接口
+        savedAddr: ""
       },
       configData: {
         baseaddr: "", // 子链操作账号：进行创建合约，发起交易等基本操作
@@ -436,7 +463,8 @@ export default {
         microChainDeposit: "", // 子链合约的gas费
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
-        monitorLink: "" // 监听子链的rpc接口
+        monitorLink: "", // 监听子链的rpc接口
+        savedAddr: ""
       },
       monitor: {
         monitorAddr: "", // 用于监听的子链
@@ -481,12 +509,26 @@ export default {
       contractData: {
         vnodePoolAddr: "", // Vnode矿池合约地址
         scsPoolAddr: "", // 子链矿池地址
-        microChainAddr: "" // 子链合约地址
+        microChainAddr: "", // 子链合约地址
+        savedHash: ""
       },
+      isDeploy: false,
+      deployTitle: "",
+      deployType: "info",
+      deployColse: false,
+      isAdd: false,
+      addTitle: "",
+      addType: "info",
+      addColse: false,
+      isMonitor: false,
+      monitorTitle: "",
+      monitorType: "info",
+      monitorColse: false,
+      isCloseA: false,
+      closeATitle: "",
+      closeAType: "info",
+      closeAColse: false,
       deployButton: false,
-      isshow: false,
-      alertMsg: "开始部署，此过程需要一段时间，请耐心等待...",
-      alertType: "info",
       sender: "",
       blockNumber: "",
       BondLimit: "",
@@ -494,22 +536,20 @@ export default {
       TxReward: "",
       ViaReward: "",
       scsCount: [],
-      start: 0,
-      end: 0,
+      number: 0,
       count: 0,
-      loading: false,
-      noMore: false,
+      hasBlock: false,
       blocks: []
     };
+  },
+  computed: {
+    isScroll() {
+      return this.end === 1;
+    }
   },
   created() {
     this.getInitConfig();
     this.getContact();
-  },
-  computed: {
-    disabled() {
-      return this.loading || this.noMore;
-    }
   },
   methods: {
     getInitConfig() {
@@ -551,7 +591,6 @@ export default {
     deployAction() {
       this.$refs["configData"].validate(valid => {
         if (valid) {
-          console.log(this.contractData);
           if (
             this.contractData.vnodePoolAddr != "" &&
             this.contractData.scsPoolAddr != "" &&
@@ -576,34 +615,37 @@ export default {
         }
       });
     },
-    deployStart() {
+    async deployStart() {
       this.addData();
       this.$http
         .post(this.url + "/initConfig", this.initConfig, { emulateJSON: false })
         .then(
           function(res) {
-            console.log(res);
+            // console.log(res);
             if (res.status === 200) {
-              //this.$message({type: "info",message: "开始部署，请耐心等待！"});
-              this.setAlert(
-                true,
-                "info",
-                "开始部署，此过程需要一段时间，请耐心等待..."
-              );
+              this.isDeploy = true;
+              this.deployTitle = "开始部署，此过程需要一段时间，请耐心等待...";
+              this.deployColse = false;
               this.deployButton = true;
               this.$http.post(this.url + "/deploy").then(
                 function(res) {
-                  console.log(res);
+                  // console.log(res);
                   var data = JSON.parse(res.bodyText);
                   if (data) {
                     switch (data.status) {
                       case "success":
-                        this.setAlert(true, "success", data.msg);
+                        this.isDeploy = true;
+                        this.deployType = "success";
+                        this.deployTitle = data.msg;
+                        this.deployColse = true;
                         this.getContact();
                         this.deployButton = false;
                         break;
                       case "error":
-                        this.setAlert(true, "error", data.msg);
+                        this.isDeploy = true;
+                        this.deployType = "error";
+                        this.deployTitle = data.msg;
+                        this.deployColse = true;
                         this.deployButton = false;
                         break;
                     }
@@ -611,7 +653,10 @@ export default {
                 },
                 function(res) {
                   console.log(res.status);
-                  this.setAlert(true, "error", "部署失败！");
+                  this.isDeploy = true;
+                  this.deployType = "error";
+                  this.deployTitle = "部署失败！";
+                  this.deployColse = true;
                   this.deployButton = false;
                 }
               );
@@ -619,7 +664,10 @@ export default {
           },
           function(res) {
             console.log(res.status);
-            this.setAlert(true, "error", "初始化配置失败！");
+            this.isDeploy = true;
+            this.deployType = "error";
+            this.deployTitle = "初始化配置失败！";
+            this.deployColse = true;
             return false;
           }
         );
@@ -635,6 +683,8 @@ export default {
       this.initConfig.minVnodeDeposit = this.configData.minVnodeDeposit;
       this.initConfig.minScsDeposit = this.configData.minScsDeposit;
       this.initConfig.minScsDeposit = this.configData.minScsDeposit;
+      this.initConfig.monitorLink = this.configData.monitorLink;
+      this.initConfig.monitorAddr = this.configData.monitorAddr;
     },
     addScs() {
       this.addNewScs.push("");
@@ -642,13 +692,16 @@ export default {
     cancelScs() {
       this.addNewScs.splice(-1);
     },
-    setAlert(show, type, msg) {
-      this.isshow = show;
-      this.alertType = type;
-      this.alertMsg = msg;
-    },
     addScsToConfig() {
+      if (!this.contractData.microChainAddr) {
+        this.$message.error("当前还未部署应用链！");
+        return;
+      }
       this.addData();
+      if (!this.addNewScs) {
+        this.$message.error("还未添加新的SCS！");
+        return;
+      }
       this.initConfig.addScs = this.addNewScs;
       this.$http
         .post(this.url + "/initConfig", this.initConfig, { emulateJSON: false })
@@ -656,7 +709,10 @@ export default {
           function(res) {
             console.log(res);
             if (res.status === 200) {
-              this.setAlert(true, "info", "开始添加应用链，请稍等!");
+              this.isAdd = true;
+              this.addTitle = "开始添加应用链，请稍等!";
+              this.addType = "info";
+              this.addColse = false;
               this.deployButton = true;
               this.$http.post(this.url + "/addScs").then(
                 function(res) {
@@ -665,13 +721,19 @@ export default {
                   if (data) {
                     switch (data.status) {
                       case "success":
-                        this.setAlert(true, "success", data.msg);
+                        this.isAdd = true;
+                        this.addTitle = data.msg;
+                        this.addType = "success";
+                        this.addColse = true;
                         this.addedScs = this.addedScs.concat(this.addNewScs);
                         this.addNewScs = [];
                         this.deployButton = false;
                         break;
                       case "error":
-                        this.setAlert(true, "error", data.msg);
+                        this.isAdd = true;
+                        this.addTitle = data.msg;
+                        this.addType = "error";
+                        this.addColse = true;
                         this.deployButton = false;
                         break;
                     }
@@ -679,7 +741,10 @@ export default {
                 },
                 function(res) {
                   console.log(res.status);
-                  this.setAlert(true, "error", "添加应用链失败!");
+                  this.isAdd = true;
+                  this.addTitle = data.msg;
+                  this.addType = "添加应用链失败!";
+                  this.addColse = true;
                   this.deployButton = false;
                 }
               );
@@ -687,11 +752,18 @@ export default {
           },
           function(res) {
             console.log(res.status);
-            this.setAlert(true, "error", "初始化配置失败！");
+            this.isAdd = true;
+            this.addTitle = data.msg;
+            this.addType = "初始化配置失败！";
+            this.addColse = true;
           }
         );
     },
     addMonitorAddrtoConfig() {
+      if (!this.contractData.microChainAddr) {
+        this.$message.error("当前还未部署应用链！");
+        return;
+      }
       this.$refs["monitor"].validate(valid => {
         if (valid) {
           this.addData();
@@ -705,7 +777,10 @@ export default {
               function(res) {
                 console.log(res);
                 if (res.status === 200) {
-                  this.setAlert(true, "info", "开始添加监听应用链，请稍等！");
+                  this.isMonitor = true;
+                  this.monitorTitle = "开始添加监听应用链，请稍等！";
+                  this.monitorType = "info";
+                  this.monitorColse = false;
                   this.deployButton = true;
                   this.$http.post(this.url + "/addMonitor").then(
                     function(res) {
@@ -714,11 +789,17 @@ export default {
                       if (data) {
                         switch (data.status) {
                           case "success":
-                            this.setAlert(true, "success", data.msg);
+                            this.isMonitor = true;
+                            this.monitorTitle = data.msg;
+                            this.monitorType = "success";
+                            this.monitorColse = true;
                             this.deployButton = false;
                             break;
                           case "error":
-                            this.setAlert(true, "error", data.msg);
+                            this.isMonitor = true;
+                            this.monitorTitle = data.msg;
+                            this.monitorType = "error";
+                            this.monitorColse = true;
                             this.deployButton = false;
                             break;
                         }
@@ -726,7 +807,10 @@ export default {
                     },
                     function(res) {
                       console.log(res.status);
-                      this.setAlert(true, "error", "添加监听应用链失败!");
+                      this.isMonitor = true;
+                      this.monitorTitle = "添加监听应用链失败!";
+                      this.monitorType = "error";
+                      this.monitorColse = true;
                       this.deployButton = false;
                     }
                   );
@@ -734,7 +818,10 @@ export default {
               },
               function(res) {
                 console.log(res.status);
-                this.setAlert(true, "error", "初始化配置失败!");
+                this.isMonitor = true;
+                this.monitorTitle = "初始化配置失败!";
+                this.monitorType = "error";
+                this.monitorColse = true;
               }
             );
         }
@@ -743,25 +830,35 @@ export default {
     getContact() {
       this.$http.get(this.url + "/getContract").then(
         function(res) {
-          console.log("getContact===>", res.body);
-          if (res.body.data) {
-            this.contractData = res.body.data;
+          if (res.body) {
+            this.contractData = res.body;
           } else {
             this.contractData = {
               vnodePoolAddr: "",
               scsPoolAddr: "",
-              microChainAddr: ""
+              microChainAddr: "",
+              savedHash: ""
             };
           }
         },
         function() {
           console.log("请求失败处理");
-          this.setAlert(true, "error", "获取应用链相关合约地址失败!");
+          this.isDeploy = true;
+          this.deployType = "error";
+          this.deployTitle = "获取应用链相关合约地址失败!";
+          this.deployColse = true;
         }
       );
     },
     onClose() {
-      this.setAlert(true, "info", "正在关闭应用链，请稍等...");
+      if (!this.contractData.microChainAddr) {
+        this.$message.error("当前还未部署应用链！");
+        return;
+      }
+      this.isCloseA = true;
+      this.closeATitle = "正在关闭应用链，请稍等...";
+      this.closeAType = "info";
+      this.closeAColse = false;
       this.deployButton = true;
       this.$http
         .post(this.url + "/closeMicroChain", this.initConfig, {
@@ -771,14 +868,20 @@ export default {
           function(res) {
             console.log(res);
             if (res.status === 200) {
-              this.setAlert(true, "success", "关闭成功!");
+              this.isCloseA = true;
+              this.closeATitle = "关闭成功!";
+              this.closeAType = "success";
+              this.closeAColse = true;
               this.deployButton = false;
               this.getContact();
             }
           },
           function(res) {
             console.log(res.status);
-            this.setAlert(true, "error", "关闭应用链失败!");
+            this.isCloseA = true;
+            this.closeATitle = "关闭应用链失败!";
+            this.closeAType = "error";
+            this.closeAColse = true;
             this.deployButton = false;
           }
         );
@@ -791,8 +894,8 @@ export default {
     },
     async handleClick(tab, event) {
       if (tab.name === "explore") {
-        await this.GetBlockNumber();
         await this.GetSubChainInfo();
+        await this.GetBlockNumber();
       }
     },
     async GetBlockNumber() {
@@ -810,15 +913,19 @@ export default {
         .catch(e => {
           console.log(e);
         });
-      if (this.blockNumber != response.body.result) {
-        this.blockNumber = response.body.result;
-        this.start = this.blockNumber;
-        this.end = this.blockNumber;
-        this.GetBlocks(this.start, this.end);
-        // this.load();
+      if (response && this.blockNumber != response.body.result) {
+        if (response.body.result > 2) {
+          this.blockNumber = response.body.result;
+          this.hasBlock = true;
+          if (this.number === 0) {
+            this.number = this.blockNumber;
+          }
+          this.GetBlock(this.blockNumber);
+          // this.load();
+        }
       }
     },
-    GetBlocks(start, end) {
+    GetBlock(number) {
       superagent
         .post("http://" + this.monitor.monitorLink + "/rpc")
         .set("Content-Type", "application/json")
@@ -826,40 +933,37 @@ export default {
         .send({
           jsonrpc: "2.0",
           id: 0,
-          method: "ScsRPCMethod.GetBlocks",
+          method: "ScsRPCMethod.GetBlock",
           params: {
-            Start: start,
-            end: end,
+            number: number,
             SubChainAddr: this.contractData.microChainAddr
           }
         })
         .timeout(10000)
         .then(response => {
-          if (end === this.blockNumber) {
-            this.count += 1;
-            let tmp = this.blocks;
-            this.blocks = [];
-            for (var i = response.body.result.length - 1; i >= 0; i--) {
-              this.blocks.push(response.body.result[i]);
+          if (response.body.result) {
+            if (number === this.blockNumber) {
+              this.count += 1;
+              let tmp = this.blocks;
+              this.blocks = [];
+              this.blocks.push(response.body.result);
+              for (var i = 0; i < tmp.length; i++) {
+                this.blocks.push(tmp[i]);
+              }
+            } else {
+              this.count += 1;
+              this.blocks.push(response.body.result);
             }
-            for (var i = 0; i < tmp.length; i++) {
-              this.blocks.push(tmp[i]);
-            }
-          } else {
-            this.count += 2;
-            for (var i = response.body.result.length - 1; i >= 0; i--) {
-              this.blocks.push(response.body.result[i]);
-            }
+            // console.log(this.blocks);
+            // console.log(this.count, this.blocks.length);
           }
-          console.log(this.count, this.blocks.length);
-          this.loading = false;
         })
         .catch(e => {
           console.log(e);
         });
     },
     async GetSubChainInfo() {
-      const response = await superagent
+      superagent
         .post("http://" + this.monitor.monitorLink + "/rpc")
         .set("Content-Type", "application/json")
         .accept("application/json")
@@ -870,15 +974,19 @@ export default {
           params: { SubChainAddr: this.contractData.microChainAddr }
         })
         .timeout(10000)
+        .then(response => {
+          if (response.body.result) {
+            this.sender = response.body.result.Sender;
+            this.BondLimit = response.body.result.BondLimit;
+            this.BlockReward = response.body.result.BlockReward;
+            this.TxReward = response.body.result.TxReward;
+            this.ViaReward = response.body.result.ViaReward;
+            this.scsCount = response.body.result.ScsList;
+          }
+        })
         .catch(e => {
           console.log(e);
         });
-      this.sender = response.body.result.Sender;
-      this.BondLimit = response.body.result.BondLimit;
-      this.BlockReward = response.body.result.BlockReward;
-      this.TxReward = response.body.result.TxReward;
-      this.ViaReward = response.body.result.ViaReward;
-      this.scsCount = response.body.result.ScsList;
     },
     async GetScsId() {
       const response = await superagent
@@ -894,25 +1002,12 @@ export default {
         .catch(e => {
           console.log(e);
         });
-      this.sender = response.body.result.Sender;
-      this.BondLimit = response.body.result.BondLimit;
-      this.BlockReward = response.body.result.BlockReward;
-      this.TxReward = response.body.result.TxReward;
-      this.ViaReward = response.body.result.ViaReward;
-      this.scsCount = response.body.result.ScsList.length;
     },
     load() {
-      if (this.blockNumber) {
-        this.loading = true;
-        this.end = this.start - 1;
-        if (this.end <= 2) {
-          this.start = 1;
-          this.noMore = true;
-        } else {
-          this.start = this.end - 1;
-        }
-        console.log("start:" + this.start, "end:" + this.end);
-        this.GetBlocks(this.start, this.end);
+      this.number = this.number - 1;
+      if (this.number > 0) {
+        // console.log("number:", this.number);
+        this.GetBlock(this.number);
       }
     },
     formatTime(value) {
@@ -931,12 +1026,15 @@ export default {
       return y + "-" + MM + "-" + d + " " + h + ":" + m + ":" + s;
     },
     getBalance(address) {
-      console.log("address", address);
-      let balance = chain3.mc.getBalance(address).toString();
-      return chain3.fromSha(balance, "mc");
+      if (address) {
+        let balance = chain3.mc.getBalance(address).toString();
+        return chain3.fromSha(balance, "mc");
+      }
     },
     format(count) {
-      return chain3.fromSha(count, "mc");
+      if (count) {
+        return chain3.fromSha(count, "mc");
+      }
     }
   },
   mounted() {
@@ -984,7 +1082,7 @@ export default {
 }
 .deployInfo {
   position: absolute;
-  top: 230px;
+  top: 0px;
   width: 800px;
   right: 0px;
   left: 0px;

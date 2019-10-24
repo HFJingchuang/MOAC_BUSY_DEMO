@@ -2,9 +2,9 @@
 	"baseaddr": "0x7a2dc129b3d794e4e8a009c83ffd7a2412f5e326",
 	"privatekey": "86736091a441dffeb8656e731474433aaf531c4adab0497fa38d36215f44f18d",
 	"scs": [
-		"0x1209a141d7f756d6bFaCB241788797Acac79f242"
+		"0xf69A731d4F024009A7447489aACf8Af54D7a0CB6"
 	],
-	"vnodeVia": "0x5e2e03d1fb8aed9dbbd939fcc1a9f2aa9afdfde4",
+	"vnodeVia": "0x668F273aF881d2eb13736425a0d72921fdA7e52D",
 	"vnodeUri": "http://127.0.0.1:8545",
 	"vnodeConnectUrl": "127.0.0.1:80062",
 	"minScsRequired": "1",
@@ -12,10 +12,8 @@
 	"minVnodeDeposit": 1,
 	"minScsDeposit": 1,
 	"microChainDeposit": 1,
-	"addScs": [
-		"0x84E0Bb75B515aC41768d4F3b9C9B348e576D3738"
-	],
-	"monitorAddr": "0x115e0ff8EA5a9797d5F8c2498C73B779bb259889",
-	"monitorLink": "localhost:2345",
-	"savedAddr": "0x7a2dc129b3d794e4e8f009c83ffd7a2412f5e325"
+	"addScs": [],
+	"monitorAddr": "0xdA262E8697a88da65dD248D9B05477bd8957A0F3",
+	"monitorLink": "127.0.0.1:2345",
+	"savedAddr": "0x7a2dc129b3d794e4e8a009c83ffd7a2412f5e330"
 }
