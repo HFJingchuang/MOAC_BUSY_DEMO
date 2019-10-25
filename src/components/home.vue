@@ -73,21 +73,37 @@
                 ref="configData"
                 :rules="rules"
               >
-                <el-form-item label="应用链操作账号" prop="baseaddr">
-                  <el-input v-model="configData.baseaddr" type="text" placeholder="请输入应用链操作账号"></el-input>
-                </el-form-item>
-                <el-form-item label="密钥" prop="privatekey">
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">
+                    需要有足够的MOAC以进行创建合约，发起交易等基本操作,
+                    <br />
+                    余额：{{getBalance(configData.baseaddr)}} Moac
+                  </div>
+                  <el-form-item label="应用链操作账号" prop="baseaddr">
+                    <el-input
+                      readonly
+                      v-model="configData.baseaddr"
+                      type="text"
+                      placeholder="请输入应用链操作账号"
+                    ></el-input>
+                  </el-form-item>
+                </el-tooltip>
+                <el-form-item v-if="false" label="密钥" prop="privatekey">
                   <el-input v-model="configData.privatekey" type="password" placeholder="请输入密钥"></el-input>
                 </el-form-item>
-                <el-form-item label="所需最小应用链数" prop="minScsRequired">
-                  <el-input
-                    v-model="configData.minScsRequired"
-                    type="number"
-                    maxlength="1"
-                    @change="getScsNumber"
-                    placeholder="请输入最小应用链数，当前允许值：1，3，5，7"
-                  ></el-input>
-                </el-form-item>
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">应用链链运行后需要的SCS的最小数量，建议数量为1；</div>
+                  <el-form-item label="所需最小应用链数" prop="minScsRequired">
+                    <el-input
+                      v-model="configData.minScsRequired"
+                      type="number"
+                      readonly
+                      maxlength="1"
+                      @change="getScsNumber"
+                      placeholder="请输入最小应用链数，当前允许值：1，3，5，7"
+                    ></el-input>
+                  </el-form-item>
+                </el-tooltip>
                 <el-form-item label="SCS节点" prop="scs">
                   <li
                     v-for="(item,index) of  configData.scs"
@@ -102,40 +118,62 @@
                     ></el-input>
                   </li>
                 </el-form-item>
-                <el-form-item label="主链vnode收益账号" prop="vnodeVia">
+                <el-form-item v-if="false" label="主链vnode收益账号" prop="vnodeVia">
                   <el-input v-model="configData.vnodeVia" type="text" placeholder="请输入主链vnode收益账号"></el-input>
                 </el-form-item>
-                <el-form-item label="代理vnode节点" prop="vnodeUri">
+                <el-form-item v-if="false" label="代理vnode节点" prop="vnodeUri">
                   <el-input v-model="configData.vnodeUri" type="text" placeholder="请输入代理vnode节点"></el-input>
                 </el-form-item>
-                <el-form-item label="应用链调用地址" prop="vnodeConnectUrl">
+                <el-form-item v-if="false" label="应用链调用地址" prop="vnodeConnectUrl">
                   <el-input
                     v-model="configData.vnodeConnectUrl"
                     type="text"
                     placeholder="请输入应用链调用地址"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="代理vnode节点保证金" prop="minVnodeDeposit">
-                  <el-input
-                    v-model="configData.minVnodeDeposit"
-                    type="number"
-                    placeholder="请输入代理vnode节点保证金"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="应用链矿池保证金" prop="minScsDeposit">
-                  <el-input
-                    v-model="configData.minScsDeposit"
-                    type="number"
-                    placeholder="请输入应用链矿池保证金"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="应用链合约gas费" prop="microChainDeposit">
-                  <el-input
-                    v-model="configData.microChainDeposit"
-                    type="number"
-                    placeholder="请输入应用链合约gas费"
-                  ></el-input>
-                </el-form-item>
+                <el-tooltip placement="right" effect="light">
+                  <div
+                    slot="content"
+                  >注册vnode节点到vnode矿池的保证金，必须大于等于Vnode矿池合约的设置值（本示例Vnode矿池合约的设置值为 1 moac）</div>
+                  <el-form-item label="代理vnode节点保证金" prop="minVnodeDeposit">
+                    <el-input
+                      readonly
+                      v-model="configData.minVnodeDeposit"
+                      type="number"
+                      placeholder="请输入代理vnode节点保证金"
+                    ></el-input>
+                  </el-form-item>
+                </el-tooltip>
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">
+                    注册SCS到应用链矿池的保证金，必须大于等于应用链矿池合约的设置值（本示例应用链矿池合约的设置值为 1 moac）
+                    <br />注册时缴纳的保证金，将在SCS被选中服务子链的时候临时扣除。（scs提交押金越多，能参与的子链越多）
+                  </div>
+                  <el-form-item label="应用链矿池保证金" prop="minScsDeposit">
+                    <el-input
+                      readonly
+                      v-model="configData.minScsDeposit"
+                      type="number"
+                      placeholder="请输入应用链矿池保证金"
+                    ></el-input>
+                  </el-form-item>
+                </el-tooltip>
+                <el-tooltip placement="right" effect="light">
+                  <div slot="content">
+                    应用链合约需要最终提供gas费给scs，因此需要给应用链控制合约发送一定量的moac
+                    <br />
+                    （这里设置发送 {{configData.microChainDeposit}} moac），调用合约里的函数addFund
+                    <br />另外，SCS在跟底层vnode通信或被调用时，tx是需要交易费的，因此需要在scsid存入1个mc作为gas费
+                  </div>
+                  <el-form-item label="应用链合约gas费" prop="microChainDeposit">
+                    <el-input
+                      readonly
+                      v-model="configData.microChainDeposit"
+                      type="number"
+                      placeholder="请输入应用链合约gas费"
+                    ></el-input>
+                  </el-form-item>
+                </el-tooltip>
                 <el-form-item>
                   <el-button
                     type="primary"
@@ -164,7 +202,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="添加新的Scs节点">
+        <el-tab-pane v-if="false" label="添加新的Scs节点">
           <el-alert
             v-show="isAdd"
             class="deployInfo"
@@ -263,7 +301,15 @@
             show-icon
           ></el-alert>
           <div class="content-pane">
-            <el-button type="primary" @click="onClose" class="button" :disabled="deployButton">一键关闭</el-button>
+            <el-tooltip placement="bottom" effect="light">
+              <div slot="content">关闭请求发送后，需等待一轮flush后生效，相关应用链维护费用也将退回到应用链部署账号中。</div>
+              <el-button
+                type="primary"
+                @click="onClose"
+                class="button"
+                :disabled="deployButton"
+              >关闭应用链</el-button>
+            </el-tooltip>
           </div>
         </el-tab-pane>
         <el-tab-pane label="应用链浏览器" name="explore">
@@ -345,7 +391,7 @@
                 >{{blockNumber}}</span>
               </div>
               <div v-if="!hasBlock" style="margin-top:20px;font-size:15px;">
-                <span>暂未获取出块信息，请稍等。。。</span>
+                <span>暂未获取出块信息</span>
               </div>
               <div v-if="hasBlock" class="box-card" style="overflow:auto">
                 <ul class="list" v-infinite-scroll="load" infinite-scroll-disabled="isScroll">

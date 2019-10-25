@@ -75,7 +75,7 @@ async function deploy(req, result, next) {
     // + SCS deposit (10 mc) * SCS number (=5)
     // + VNODE deposit (1 mc) * VNODE number (=1)
     // + MicroChain deposit (10 mc)
-    var needMoac = Number(scs.length * minScsDeposit) + Number(minVnodeDeposit) + Number(scs.length * microChainDeposit);
+    var needMoac = Number(scs.length * 2 * minScsDeposit) + Number(minVnodeDeposit * 2) + Number(microChainDeposit);
     if (!utils.checkBalance(baseaddr, needMoac)) {
         logger.info("Need more balance in baseaddr," + needMoac + " mc at least!");
         result.send('{"status":"error", "msg":"操作账号moac不足！"}')
@@ -516,13 +516,13 @@ async function saveMicroChain() {
 
     //转换log数据格式
     let str = JSON.stringify(logs);
-    console.log(str);
+    logger.info(str);
     let data = Buffer.from(str).toString('hex');
     data = '0x' + data;
-    console.log(data);
+    logger.info(data);
 
     let rawTx = {
-        to: microChainDeposit = utils.nconf.get("savedAddr"),
+        to: utils.nconf.get("savedAddr"),
         nonce: utils.chain3.toHex(utils.getNonce(baseaddr)),
         gasLimit: utils.chain3.toHex("9000000"),
         gasPrice: utils.chain3.toHex(utils.chain3.mc.gasPrice),
@@ -533,11 +533,11 @@ async function saveMicroChain() {
     let signtx = utils.chain3.signTransaction(rawTx, privatekey);
     utils.chain3.mc.sendRawTransaction(signtx, function (err, hash) {
         if (!err) {
-            console.log("succeed: ", hash);
+            logger.info("succeed: ", hash);
             wirteJson("savedHash", hash);
         } else {
-            console.log("error:", err);
-            console.log('raw tx:', rawTx);
+            logger.info("error:", err);
+            logger.info('raw tx:', rawTx);
         }
     });
 
@@ -548,12 +548,12 @@ async function reSaveMicroChain(logs) {
 
     //转换log数据格式
     let str = JSON.stringify(logs);
-    console.log(str);
+    logger.info(str);
     let data = Buffer.from(str).toString('hex');
     data = '0x' + data;
 
     let rawTx = {
-        to: microChainDeposit = utils.nconf.get("savedAddr"),
+        to: utils.nconf.get("savedAddr"),
         nonce: utils.chain3.toHex(utils.getNonce(baseaddr)),
         gasLimit: utils.chain3.toHex("9000000"),
         gasPrice: utils.chain3.toHex(utils.chain3.mc.gasPrice),
@@ -565,12 +565,12 @@ async function reSaveMicroChain(logs) {
     await new Promise((resolve, reject) => {
         utils.chain3.mc.sendRawTransaction(signtx, function (err, hash) {
             if (!err) {
-                console.log("succeed: ", hash);
+                logger.info("succeed: ", hash);
                 wirteJson("savedHash", hash);
                 resolve(hash);
             } else {
-                console.log("error:", err);
-                console.log('raw tx:', rawTx);
+                logger.info("error:", err);
+                logger.info('raw tx:', rawTx);
                 reject(err);
             }
         });
@@ -586,7 +586,6 @@ async function getSavedMicroChain() {
     return data = await new Promise((resolve, reject) => {
         utils.chain3.mc.getTransaction(hash, function (e, result) {
             if (!e) {
-                //console.log(result);
                 inputData = result.input;
                 res_str = Buffer.from(inputData.replace('0x', ''), 'hex').toString();
                 res_json = JSON.parse(res_str);
@@ -628,9 +627,9 @@ function scheduleCronstyle() {
     // 每隔4小时执行一次应用链清理
     var rule = new schedule.RecurrenceRule();
     rule.hour = [0, 4, 8, 12, 16, 20];
-    console.log('scheduleCronstyle-start:', new Date().getHours());
+    logger.info('scheduleCronstyle-start:', new Date().getHours());
     schedule.scheduleJob(rule, () => {
-        console.log('scheduleCronstyle-do:', new Date().getHours());
+        logger.info('scheduleCronstyle-do:', new Date().getHours());
         clearMicroChain();
     });
 }
