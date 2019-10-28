@@ -1,13 +1,13 @@
 # MOAC_BUSY_DEMO
 MOAC一键发链商务DEMO
 
-## 安装
+### 安装
 ```javascript
 npm install
 ```
 另外windows环境下您可能需要 [Visual C++ 、 Python 2.7](https://github.com/nodejs/node-gyp#on-windows)
 
-## 默认配置
+### 默认配置
 ```json
 {
       {
@@ -33,7 +33,7 @@ npm install
     }
 }
 ```
-## 启动服务
+### 启动服务
 ```javascript
 npm run start
 ```
