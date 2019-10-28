@@ -1,5 +1,19 @@
 <template>
   <div class="home">
+    <el-dialog
+      title="请输入密码"
+      :visible="dialogVisible"
+      width="30%"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-input v-model="password" type="password" placeholder="请输入密码"></el-input>
+      <el-checkbox v-model="savePwd" style="float:left;padding-top:10px;">记住密码</el-checkbox>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="verifyPwd()">确 定</el-button>
+      </span>
+    </el-dialog>
     <section class="head_back"></section>
     <section class="head">
       <div class="topImgBox">
@@ -11,50 +25,7 @@
     </section>
     <section class="content">
       <el-tabs tab-position="top" @tab-click="handleClick">
-        <el-tab-pane label="准备工作说明">
-          <div class="content-pane">
-            <div class="content-pane-left" style="text-align:left;width:800px">
-              <p>
-                <b>1.Vnode节点同步</b>
-                <br />版本来源:
-                <a
-                  style="text-decoration: none;color: #419efb;"
-                  href="https://github.com/MOACChain/moac-core/releases/"
-                >https://github.com/MOACChain/moac-core/releases/</a>
-                <br />配置好vnodeconfig.json后，可在测试环境testnet启动节点：
-                <br />./moac -testnet -rpcaddr ‘your ip’ -rpcport ‘8545’ -rpc -rpcapi “chain3,mc,net,db,personal,admin,miner,txpool”
-                <br />同步需要一段时间
-                <br />具体可参照：
-                <br />
-                <el-link
-                  type="primary"
-                  href="https://blog.csdn.net/lyq13573221675/article/details/81078424"
-                >墨客区块链(MOAC BlockChain) 节点安装教程</el-link>
-                <br />
-                <br />
-                <b>2.SCS节点启动，获取SCS帐号</b>
-                <br />配置好userconfig.json后，可启动
-                <br />./scsserver –password “123456”
-                <br />具体可参照：
-                <br />
-                <el-link
-                  type="primary"
-                  href="https://blog.csdn.net/lyq13573221675/article/details/81125954"
-                >墨客区块链(MOAC BlockChain) 应用链搭建教程</el-link>
-                <br />
-              </p>
-              <p style="margin-top: 40px;">
-                <b>详情参考：</b>
-                <br />
-                <el-link
-                  type="primary"
-                  href="https://moacdocs-chn.readthedocs.io/zh_CN/latest/subchain/%E9%83%A8%E7%BD%B2%E5%AD%90%E9%93%BE%E5%89%8D%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C.html"
-                >部署应用链前的准备工作</el-link>
-              </p>
-            </div>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="部署应用链出块">
+        <el-tab-pane v-if="isVerify" label="部署应用链出块">
           <el-alert
             v-show="isDeploy"
             class="deployInfo"
@@ -113,6 +84,7 @@
                     <el-input
                       v-model="configData.scs[index]"
                       type="text"
+                      readonly
                       style="margin-bottom: 10px;"
                       placeholder="请输入节点地址"
                     ></el-input>
@@ -251,7 +223,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="添加监听应用链节点">
+        <el-tab-pane v-if="isVerify" label="添加监听应用链节点">
           <el-alert
             v-show="isMonitor"
             class="deployInfo"
@@ -290,7 +262,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="关闭应用链">
+        <el-tab-pane v-if="isVerify" label="关闭应用链">
           <el-alert
             v-show="isCloseA"
             class="deployInfo"
@@ -312,7 +284,7 @@
             </el-tooltip>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="应用链浏览器" name="explore">
+        <el-tab-pane v-if="isVerify" label="应用链浏览器" name="explore">
           <el-row :gutter="5">
             <el-col :span="8" :push="3">
               <div class="grid-content" style="text-align:left;padding-top:5px;">
@@ -439,6 +411,49 @@
             </el-col>
           </el-row>
         </el-tab-pane>
+        <el-tab-pane v-if="isVerify" label="相关说明">
+          <div class="content-pane">
+            <div class="content-pane-left" style="text-align:left;width:800px">
+              <p>
+                <b>1.Vnode节点同步</b>
+                <br />版本来源:
+                <a
+                  style="text-decoration: none;color: #419efb;"
+                  href="https://github.com/MOACChain/moac-core/releases/"
+                >https://github.com/MOACChain/moac-core/releases/</a>
+                <br />配置好vnodeconfig.json后，可在测试环境testnet启动节点：
+                <br />./moac -testnet -rpcaddr ‘your ip’ -rpcport ‘8545’ -rpc -rpcapi “chain3,mc,net,db,personal,admin,miner,txpool”
+                <br />同步需要一段时间
+                <br />具体可参照：
+                <br />
+                <el-link
+                  type="primary"
+                  href="https://blog.csdn.net/lyq13573221675/article/details/81078424"
+                >墨客区块链(MOAC BlockChain) 节点安装教程</el-link>
+                <br />
+                <br />
+                <b>2.SCS节点启动，获取SCS帐号</b>
+                <br />配置好userconfig.json后，可启动
+                <br />./scsserver –password “123456”
+                <br />具体可参照：
+                <br />
+                <el-link
+                  type="primary"
+                  href="https://blog.csdn.net/lyq13573221675/article/details/81125954"
+                >墨客区块链(MOAC BlockChain) 应用链搭建教程</el-link>
+                <br />
+              </p>
+              <p style="margin-top: 40px;">
+                <b>详情参考：</b>
+                <br />
+                <el-link
+                  type="primary"
+                  href="https://moacdocs-chn.readthedocs.io/zh_CN/latest/subchain/%E9%83%A8%E7%BD%B2%E5%AD%90%E9%93%BE%E5%89%8D%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C.html"
+                >部署应用链前的准备工作</el-link>
+              </p>
+            </div>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </section>
   </div>
@@ -496,7 +511,8 @@ export default {
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
         monitorLink: "", // 监听子链的rpc接口
-        savedAddr: ""
+        savedAddr: "",
+        password: ""
       },
       configData: {
         baseaddr: "", // 子链操作账号：进行创建合约，发起交易等基本操作
@@ -513,7 +529,8 @@ export default {
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
         monitorLink: "", // 监听子链的rpc接口
-        savedAddr: ""
+        savedAddr: "",
+        password: ""
       },
       monitor: {
         monitorAddr: "", // 用于监听的子链
@@ -588,7 +605,11 @@ export default {
       number: 0,
       count: 0,
       hasBlock: false,
-      blocks: []
+      blocks: [],
+      isVerify: false,
+      password: "",
+      dialogVisible: false,
+      savePwd: false
     };
   },
   computed: {
@@ -596,7 +617,7 @@ export default {
       return this.end === 1;
     }
   },
-  created() {
+  async created() {
     this.getInitConfig();
     this.getContact();
   },
@@ -606,6 +627,7 @@ export default {
         function(res) {
           console.log(res.body);
           this.configData = res.body;
+          this.getlocalStorage();
           if (this.configData.scs.length === 0) {
             this.configData.scs = [""];
           }
@@ -1083,6 +1105,32 @@ export default {
     format(count) {
       if (count) {
         return chain3.fromSha(count, "mc");
+      }
+    },
+    verifyPwd() {
+      if (this.password === this.configData.password) {
+        this.isVerify = true;
+        this.dialogVisible = false;
+        if (this.savePwd) {
+          localStorage.setItem("pwd", this.password);
+        }
+      } else {
+        this.password = "";
+        if (!this.dialogVisible) {
+          this.dialogVisible = true;
+        }
+        if (this.dialogVisible) {
+          this.$message.error("密码错误，请重试！");
+        }
+      }
+    },
+    getlocalStorage: function() {
+      this.password = localStorage.getItem("pwd");
+      if (this.password) {
+        this.dialogVisible = false;
+        this.verifyPwd();
+      } else {
+        this.dialogVisible = true;
       }
     }
   },

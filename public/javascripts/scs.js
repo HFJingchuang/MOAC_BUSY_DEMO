@@ -279,6 +279,7 @@ function config(req, res, next) {
     var configPath = path.resolve(__dirname, "../../initConfig.json");
     var config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     newConfig['savedAddr'] = config["savedAddr"];
+    newConfig['password'] = config["password"];
     fs.writeFileSync(configPath, JSON.stringify(newConfig, null, '\t'), 'utf8');
     res.send('{ code: 0, msg: "init config success!" }')
 }

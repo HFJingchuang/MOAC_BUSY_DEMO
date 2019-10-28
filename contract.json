@@ -1,6 +1,6 @@
 {
-	"vnodePoolAddr": "",
-	"scsPoolAddr": "",
-	"microChainAddr": "",
-	"savedHash": "0xaf023af10d9565f22e1ca9cbbd53e26559334bb08523643bbaaed5a50dde7f30"
+	"vnodePoolAddr": "0x9191dd01981e00ecf5fa4f9ada052aa241c196be",
+	"scsPoolAddr": "0xe26d8d637c04222bbf56c4c4842746fa5b1044d4",
+	"microChainAddr": "0x481068d4cb5aea72753c20958819359a894ba0ff",
+	"savedHash": "0xa7a1dd21e8ae43d46049e01c68309e275538afbc60b7a3796b15793ae87bf14d"
 }
