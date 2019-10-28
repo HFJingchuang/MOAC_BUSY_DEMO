@@ -20,12 +20,12 @@
         <img src="../images/logo.png" style="height: 150px;display: flex;" />
       </div>
       <div class="topTitleBox">
-        <span>墨客应用链一键发链工具</span>
+        <span>墨客应用链一键发链</span>
       </div>
     </section>
     <section class="content">
       <el-tabs tab-position="top" @tab-click="handleClick">
-        <el-tab-pane v-if="isVerify" label="部署应用链出块">
+        <el-tab-pane v-if="isVerify" label="部署应用链">
           <el-alert
             v-show="isDeploy"
             class="deployInfo"
@@ -174,7 +174,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="false" label="添加新的Scs节点">
+        <el-tab-pane v-if="false" label="添加新的SCS节点">
           <el-alert
             v-show="isAdd"
             class="deployInfo"
@@ -223,7 +223,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="isVerify" label="添加监听应用链节点">
+        <el-tab-pane v-if="isVerify" label="添加应用链监听节点">
           <el-alert
             v-show="isMonitor"
             class="deployInfo"
@@ -415,41 +415,14 @@
           <div class="content-pane">
             <div class="content-pane-left" style="text-align:left;width:800px">
               <p>
-                <b>1.Vnode节点同步</b>
-                <br />版本来源:
-                <a
-                  style="text-decoration: none;color: #419efb;"
-                  href="https://github.com/MOACChain/moac-core/releases/"
-                >https://github.com/MOACChain/moac-core/releases/</a>
-                <br />配置好vnodeconfig.json后，可在测试环境testnet启动节点：
-                <br />./moac -testnet -rpcaddr ‘your ip’ -rpcport ‘8545’ -rpc -rpcapi “chain3,mc,net,db,personal,admin,miner,txpool”
-                <br />同步需要一段时间
-                <br />具体可参照：
+                <b>本项目只为墨客应用链一键发链演示</b>
+                <br />
+                <br />若需要自己尝试一键发链，可使用以下项目，参照具体文档操作:
                 <br />
                 <el-link
                   type="primary"
-                  href="https://blog.csdn.net/lyq13573221675/article/details/81078424"
-                >墨客区块链(MOAC BlockChain) 节点安装教程</el-link>
-                <br />
-                <br />
-                <b>2.SCS节点启动，获取SCS帐号</b>
-                <br />配置好userconfig.json后，可启动
-                <br />./scsserver –password “123456”
-                <br />具体可参照：
-                <br />
-                <el-link
-                  type="primary"
-                  href="https://blog.csdn.net/lyq13573221675/article/details/81125954"
-                >墨客区块链(MOAC BlockChain) 应用链搭建教程</el-link>
-                <br />
-              </p>
-              <p style="margin-top: 40px;">
-                <b>详情参考：</b>
-                <br />
-                <el-link
-                  type="primary"
-                  href="https://moacdocs-chn.readthedocs.io/zh_CN/latest/subchain/%E9%83%A8%E7%BD%B2%E5%AD%90%E9%93%BE%E5%89%8D%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C.html"
-                >部署应用链前的准备工作</el-link>
+                  href="https://github.com/gwang74/moac_xpress"
+                >墨客应用链一键发链工具</el-link>
               </p>
             </div>
           </div>
