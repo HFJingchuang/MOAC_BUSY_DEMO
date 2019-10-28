@@ -46,3 +46,12 @@ npm install
 ```javascript
 npm run start
 ```
+
+
+#### SWTC&MOAC开发者社区
+
+项目讨论的QQ群：568285439
+
+Telegram: https://t.me/moacblockchain
+
+提案发起（Submit proposal）： https://github.com/JCCDex/ProjectFundingProposal/issues
