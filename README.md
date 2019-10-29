@@ -40,7 +40,7 @@ npm install
     }
 }
 ```
-带有 * 的列均为默认配置，需要服务启动前完成配置。
+带有 * 的参数行均为默认配置，需要服务启动前完成配置。
 
 ### 节点启动
 ```javascript
@@ -57,7 +57,7 @@ nohup ./scsserver-linux-amd64 --password "123456" --rpcdebug --rpcaddr "0.0.0.0"
 
 ### 启动服务
 ```javascript
-npm run start
+nohup npm run start &
 ```
 
 
