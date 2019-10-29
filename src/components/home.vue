@@ -462,8 +462,8 @@
               </p>
               <h6 class="qa">
                 顾名思义就是关闭已经部署的应用链，点击【关闭应用链】按钮等待2分钟左右即完成发送关闭请求。
-                请求发送后，需等待一轮flush后生效（本项目设定flushRound为40,flushRound即使子链刷新周期（以母链block生成数量为准）），关闭后SCS不再出块，相关应用链维护费用也将退回到应用链部署账号中。
-                <br />注意！为了资源的不必要浪费，本项目部署的应用链每隔4小时会清理一次。所以你可以手动关闭应用链，或者等待4小时后自动关闭。
+                请求发送后，需等待一轮flush后生效（本项目设定flushRound为40,flushRound即子链刷新周期（以母链block生成数量为准）），关闭后SCS不再出块，相关应用链维护费用也将退回到应用链部署账号中。
+                <br />注意！为了防止资源的不必要浪费，本项目部署的应用链每隔4小时会清理一次。所以你可以手动关闭应用链，或者等待4小时后自动关闭。
               </h6>
             </div>
           </div>
@@ -710,7 +710,7 @@ export default {
             // console.log(res);
             if (res.status === 200) {
               this.isDeploy = true;
-              this.deployTitle = "开始部署，此过程需要一段时间，请耐心等待...";
+              this.deployTitle = "开始部署，此过程需要10分钟左右，请耐心等待...";
               this.deployColse = false;
               this.deployButton = true;
               this.$http.post(this.url + "/deploy").then(
