@@ -6,7 +6,7 @@
 	],
 	"vnodeVia": "0x668F273aF881d2eb13736425a0d72921fdA7e52D",
 	"vnodeUri": "http://127.0.0.1:8545",
-	"vnodeConnectUrl": "127.0.0.1:80062",
+	"vnodeConnectUrl": "127.0.0.1:50062",
 	"minScsRequired": "1",
 	"rpcLink": "",
 	"minVnodeDeposit": 1,

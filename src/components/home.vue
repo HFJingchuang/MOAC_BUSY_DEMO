@@ -419,10 +419,7 @@
                 <br />
                 <br />若需要自己尝试一键发链，可使用以下项目，参照具体文档操作:
                 <br />
-                <el-link
-                  type="primary"
-                  href="https://github.com/gwang74/moac_xpress"
-                >墨客应用链一键发链工具</el-link>
+                <el-link type="primary" href="https://github.com/gwang74/moac_xpress">墨客应用链一键发链工具</el-link>
               </p>
             </div>
           </div>
@@ -544,7 +541,8 @@ export default {
         monitorAddr: [{ required: true, message: "不可为空", trigger: "blur" }],
         monitorLink: [{ required: true, message: "不可为空", trigger: "blur" }]
       },
-      url: "http://localhost:3000/scss",
+      url: "http://47.92.110.121:3030/scss",
+      monitorRpc: "http://47.92.110.121:2345/rpc",
       contractData: {
         vnodePoolAddr: "", // Vnode矿池合约地址
         scsPoolAddr: "", // 子链矿池地址
@@ -944,7 +942,7 @@ export default {
     },
     async GetBlockNumber() {
       const response = await superagent
-        .post("http://" + this.monitor.monitorLink + "/rpc")
+        .post(monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -971,7 +969,7 @@ export default {
     },
     GetBlock(number) {
       superagent
-        .post("http://" + this.monitor.monitorLink + "/rpc")
+        .post(monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -1008,7 +1006,7 @@ export default {
     },
     async GetSubChainInfo() {
       superagent
-        .post("http://" + this.monitor.monitorLink + "/rpc")
+        .post(monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -1034,7 +1032,7 @@ export default {
     },
     async GetScsId() {
       const response = await superagent
-        .post("http://" + this.monitor.monitorLink + "/rpc")
+        .post(monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
