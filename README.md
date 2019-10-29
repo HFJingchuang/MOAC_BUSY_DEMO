@@ -27,7 +27,7 @@ npm install
     *  "vnodeVia": "0x668F273aF881d2eb13736425a0d72921fdA7e52D", // * 主链vnode收益账号
     *  "vnodeUri": "http://127.0.0.1:8545", // 代理Vnode节点
     *  "vnodeConnectUrl": "127.0.0.1:80062", // vnode提供给子链的调用地址
-    *  "minScsRequired": "1", // 子链需要SCS的最小数量，当前需要从如下值中选择：1，3，5，7，默认1
+    *  "minScsRequired": "3", // 子链需要SCS的最小数量，当前需要从如下值中选择：1，3，5，7，默认3
       "rpcLink": "",
     *  "minVnodeDeposit": 1, // 代理Vnode节点的保证金
     *  "minScsDeposit": 1, // 子链矿池的保证金
