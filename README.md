@@ -42,6 +42,19 @@ npm install
 ```
 带有 * 的列均为默认配置，需要服务启动前完成配置。
 
+### 节点启动
+```javascript
+// vnode
+nohup ./moac-linux-amd64 --testnet --rpc --rpcapi="mc,txpool,chain3,net,SCS" &
+
+// scs
+nohup ./scsserver-linux-amd64 --password "123456" &
+
+// monitor
+nohup ./scsserver-linux-amd64 --password "moac123" --rpcdebug --rpcaddr "0.0.0.0" --rpcport 2345  --rpccorsdomain "*" &
+```
+
+
 ### 启动服务
 ```javascript
 npm run start
