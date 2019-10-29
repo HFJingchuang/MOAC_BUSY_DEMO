@@ -63,7 +63,7 @@
                   <el-input v-model="configData.privatekey" type="password" placeholder="请输入密钥"></el-input>
                 </el-form-item>
                 <el-tooltip placement="right" effect="light">
-                  <div slot="content">应用链链运行后需要的SCS的最小数量，建议数量为1；</div>
+                  <div slot="content">应用链链运行后需要的SCS的最小数量，建议数量为3；</div>
                   <el-form-item label="所需最小应用链数" prop="minScsRequired">
                     <el-input
                       v-model="configData.minScsRequired"
@@ -223,7 +223,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="isVerify" label="添加应用链监听节点">
+        <el-tab-pane v-if="isVerify" label="注册应用链监听节点">
           <el-alert
             v-show="isMonitor"
             class="deployInfo"
@@ -242,8 +242,14 @@
                 ref="monitor"
                 :rules="monitorRules"
               >
-                <el-form-item label="监听应用链账号" prop="monitorAddr">
-                  <el-input v-model="monitor.monitorAddr" type="text" placeholder="请输入监听应用链账号"></el-input>
+                <el-form-item label="监听应用链节点" prop="monitorAddr">
+                  <el-tooltip placement="right" effect="light">
+                    <div slot="content">
+                      Monitor是一个特殊的SCS节点，它是一种模式，DAPP用户可以通过这个节点来监控自己的子链运行状态和业务数据。
+                      <br />SCS Monitor不参与子链共识，因此只能查看，不能修改数据。即使子链已经运行，Monitor也能注册加入。
+                    </div>
+                    <el-input v-model="monitor.monitorAddr" type="text" placeholder="请输入监听应用链节点地址"></el-input>
+                  </el-tooltip>
                 </el-form-item>
                 <el-form-item label="监听应用链rpc接口" prop="monitorLink">
                   <el-input v-model="monitor.monitorLink" type="text" placeholder="请输入监听应用链rpc接口"></el-input>
@@ -255,33 +261,11 @@
                     class="button"
                     style="margin-left: -150px;"
                     :disabled="deployButton"
-                  >一键添加</el-button>
-                  <el-button @click="clearMoitor" class="button">重置</el-button>
+                  >一键注册</el-button>
+                  <el-button v-if="false" @click="clearMoitor" class="button">重置</el-button>
                 </el-form-item>
               </el-form>
             </div>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane v-if="isVerify" label="关闭应用链">
-          <el-alert
-            v-show="isCloseA"
-            class="deployInfo"
-            :title="closeATitle"
-            :type="closeAType"
-            center
-            :closable="closeAColse"
-            show-icon
-          ></el-alert>
-          <div class="content-pane">
-            <el-tooltip placement="bottom" effect="light">
-              <div slot="content">关闭请求发送后，需等待一轮flush后生效，相关应用链维护费用也将退回到应用链部署账号中。</div>
-              <el-button
-                type="primary"
-                @click="onClose"
-                class="button"
-                :disabled="deployButton"
-              >关闭应用链</el-button>
-            </el-tooltip>
           </div>
         </el-tab-pane>
         <el-tab-pane v-if="isVerify" label="应用链浏览器" name="explore">
@@ -396,7 +380,7 @@
                 </ul>
               </div>
             </el-col>
-            <el-col :span="6" style="margin-left:250px;">
+            <el-col :span="6" class="scs">
               <div class="scsHead" style="text-align:left;">
                 <span>应用链SCS</span>
               </div>
@@ -411,6 +395,28 @@
             </el-col>
           </el-row>
         </el-tab-pane>
+        <el-tab-pane v-if="isVerify" label="关闭应用链">
+          <el-alert
+            v-show="isCloseA"
+            class="deployInfo"
+            :title="closeATitle"
+            :type="closeAType"
+            center
+            :closable="closeAColse"
+            show-icon
+          ></el-alert>
+          <div class="content-pane">
+            <el-tooltip placement="bottom" effect="light">
+              <div slot="content">关闭请求发送后，需等待一轮flush后生效，相关应用链维护费用也将退回到应用链部署账号中。</div>
+              <el-button
+                type="primary"
+                @click="onClose"
+                class="button"
+                :disabled="deployButton"
+              >关闭应用链</el-button>
+            </el-tooltip>
+          </div>
+        </el-tab-pane>
         <el-tab-pane v-if="isVerify" label="相关说明">
           <div class="content-pane">
             <div class="content-pane-left" style="text-align:left;width:800px">
@@ -421,6 +427,44 @@
                 <br />
                 <el-link type="primary" href="https://github.com/gwang74/moac_xpress">墨客应用链一键发链工具</el-link>
               </p>
+              <p class="qa">
+                <b>Q&A</b>
+                <br />
+                <br />1. 该如何操作去部署一条应用链？
+              </p>
+              <h6 class="qa">
+                本项目旨在演示快捷一键发链，所以操作只需在【部署应用链】标签页面按下【一键部署】按钮即可，剩下要做的就是等待大概10-15分钟左右即可完成部署。
+                部署完成后，页面右边会显示本次部署的应用链合约地址。
+                <br />注意！部署等待过程中，最好不要刷新页面，虽然不会中止应用链部署，但是可能会造成某些提示信息丢失的问题。
+              </h6>
+              <p class="qa">
+                <br />2. 点击部署按钮出现提示框【当前部署已完成，继续重新部署会覆盖当前已生成的相关合约地址, 是否继续?】，这是什么提示？
+              </p>
+              <h6 class="qa">
+                首先不用担心，出现该提示是由于上一次部署的应用链相关信息还在（即页面中右边框的三个合约地址栏），本次继续部署的话将会用新部署的应用链信息覆盖掉原来的信息。
+                <br />你只需确认原来的信息是否需要，如果需要的话手动复制保存即可。
+              </h6>
+              <p class="qa">
+                <br />3. 我部署完成了，想看看应用链的详细信息该怎么做呢？
+              </p>
+              <h6 class="qa">
+                首先，只需在【注册应用链监听节点】标签页中点击【一键注册】按钮，等待20秒左右完成注册。
+                <br />然后，跳转到【应用链浏览器】标签页即可看到应用链相关信息。
+                <br />或者在
+                <el-link type="primary" href="http://testnet.moac.io/scinfo">墨客测试浏览器应用链注册页面</el-link>依次填入
+                <br />Ip：47.92.110.121
+                <br />Port：2345
+                <br />MicroChain Address : 【部署应用链】标签页面的应用链合约地址栏的地址
+                <br />再点击【Submit】按钮同样可以查看应用链相关信息。
+              </h6>
+              <p class="qa">
+                <br />4. 这个【关闭应用链】是做什么的？
+              </p>
+              <h6 class="qa">
+                顾名思义就是关闭已经部署的应用链，点击【关闭应用链】按钮等待20秒左右即完成发送关闭请求。
+                请求发送后，需等待一轮flush后生效（本项目设定flushRound为40,flushRound即使子链刷新周期（以母链block生成数量为准）），相关应用链维护费用也将退回到应用链部署账号中。
+                <br />注意！为了资源的不必要浪费，本项目部署的应用链每隔4小时会清理一次。所以你可以手动关闭应用链，或者等待4小时后自动关闭。
+              </h6>
             </div>
           </div>
         </el-tab-pane>
@@ -752,7 +796,7 @@ export default {
             console.log(res);
             if (res.status === 200) {
               this.isAdd = true;
-              this.addTitle = "开始添加应用链，请稍等!";
+              this.addTitle = "开始注册应用链，请稍等!";
               this.addType = "info";
               this.addColse = false;
               this.deployButton = true;
@@ -785,7 +829,7 @@ export default {
                   console.log(res.status);
                   this.isAdd = true;
                   this.addTitle = data.msg;
-                  this.addType = "添加应用链失败!";
+                  this.addType = "注册应用链失败!";
                   this.addColse = true;
                   this.deployButton = false;
                 }
@@ -942,7 +986,7 @@ export default {
     },
     async GetBlockNumber() {
       const response = await superagent
-        .post(monitorRpc)
+        .post(this.monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -969,7 +1013,7 @@ export default {
     },
     GetBlock(number) {
       superagent
-        .post(monitorRpc)
+        .post(this.monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -1006,7 +1050,7 @@ export default {
     },
     async GetSubChainInfo() {
       superagent
-        .post(monitorRpc)
+        .post(this.monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -1032,7 +1076,7 @@ export default {
     },
     async GetScsId() {
       const response = await superagent
-        .post(monitorRpc)
+        .post(this.monitorRpc)
         .set("Content-Type", "application/json")
         .accept("application/json")
         .send({
@@ -1234,5 +1278,16 @@ export default {
 .scsHead {
   margin-top: 40px;
   margin-bottom: 30px;
+}
+
+.scs {
+  margin-left: 250px;
+}
+
+.qa {
+  margin-top: 10px;
+  margin: 0;
+  padding: 0;
+  line-height: 18px;
 }
 </style>

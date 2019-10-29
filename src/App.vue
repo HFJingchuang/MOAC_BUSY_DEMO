@@ -3,7 +3,7 @@
     <div id="v-content" v-bind:style="{minHeight: Height+'px'}">
       <router-view />
     </div>
-    <h6 style="margin-bottom: 10px;">&copy;2019 — 井创科技</h6>
+    <h6 id="id_footer">&copy;2019 — 井创科技</h6>
   </div>
 </template>
 
@@ -32,5 +32,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+#id_footer {
+  position: absolute;
+  margin-bottom: 10px;
+  width: 100%;
 }
 </style>
