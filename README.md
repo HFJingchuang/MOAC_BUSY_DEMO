@@ -51,7 +51,7 @@ nohup ./moac-linux-amd64 --testnet --rpc --rpcapi="mc,txpool,chain3,net,SCS" &
 nohup ./scsserver-linux-amd64 --password "123456" &
 
 // monitor
-nohup ./scsserver-linux-amd64 --password "moac123" --rpcdebug --rpcaddr "0.0.0.0" --rpcport 2345  --rpccorsdomain "*" &
+nohup ./scsserver-linux-amd64 --password "123456" --rpcdebug --rpcaddr "0.0.0.0" --rpcport 2345  --rpccorsdomain "*" &
 ```
 
 
