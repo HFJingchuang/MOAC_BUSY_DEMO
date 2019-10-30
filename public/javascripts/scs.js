@@ -616,7 +616,7 @@ async function clearMicroChain() {
             let now = (new Date).getTime();
             let hours = (now - time) / 3600000;
             if (hours >= 4) {
-                closeMicroChain(microChain);
+               await closeMicroChain(microChain);
                 logs.splice(i, 1);
             }
         }
