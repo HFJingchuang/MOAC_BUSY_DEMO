@@ -611,10 +611,12 @@ async function clearMicroChain() {
         }
         for (var i = logs.length - 1; i >= 0; i--) {
             let log = logs[i];
+            let microChain = log["addr"];
             let time = log["time"];
             let now = (new Date).getTime();
             let hours = (now - time) / 3600000;
             if (hours >= 4) {
+                closeMicroChain(microChain);
                 logs.splice(i, 1);
             }
         }
@@ -622,6 +624,24 @@ async function clearMicroChain() {
             reSaveMicroChain(logs);
         }
     }
+}
+
+async function closeMicroChain(microChain) {
+    var config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../contract.json"), 'utf8'));
+    let microChainAddr = config['microChainAddr'];
+    baseaddr = utils.nconf.get("baseaddr");
+    utils.sendtx(baseaddr, microChain, 0, '0x43d726d6');
+    // clear config.json
+    if (microChain === microChainAddr) {
+        var contract = {
+            "vnodePoolAddr": "",
+            "scsPoolAddr": "",
+            "microChainAddr": "",
+            "savedHash": config["savedHash"]
+        };
+        fs.writeFileSync(path.resolve(__dirname, "../../contract.json"), JSON.stringify(contract, null, '\t'), 'utf8');
+    }
+    logger.info("waiting for a flush!!!");
 }
 
 function scheduleCronstyle() {
