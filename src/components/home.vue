@@ -512,7 +512,6 @@ export default {
     return {
       initConfig: {
         baseaddr: "", // 子链操作账号：进行创建合约，发起交易等基本操作
-        privatekey: "", //密钥
         scs: [], // scs节点
         vnodeVia: "", // 主链vnode收益账号
         vnodeUri: "", // 代理Vnode节点
@@ -524,13 +523,10 @@ export default {
         microChainDeposit: 1, // 子链合约的gas费
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
-        monitorLink: "", // 监听子链的rpc接口
-        savedAddr: "",
-        password: ""
+        monitorLink: "" // 监听子链的rpc接口
       },
       configData: {
         baseaddr: "", // 子链操作账号：进行创建合约，发起交易等基本操作
-        privatekey: "", //密钥
         scs: [""], // scs节点
         vnodeVia: "", // 主链vnode收益账号
         vnodeUri: "", // 代理Vnode节点
@@ -542,9 +538,7 @@ export default {
         microChainDeposit: "", // 子链合约的gas费
         addScs: [], // 需要添加的子链节点
         monitorAddr: "", // 用于监听的子链
-        monitorLink: "", // 监听子链的rpc接口
-        savedAddr: "",
-        password: ""
+        monitorLink: "" // 监听子链的rpc接口
       },
       monitor: {
         monitorAddr: "", // 用于监听的子链
@@ -1124,21 +1118,37 @@ export default {
       }
     },
     verifyPwd() {
-      if (this.password === this.configData.password) {
-        this.isVerify = true;
-        this.dialogVisible = false;
-        if (this.savePwd) {
-          localStorage.setItem("pwd", this.password);
-        }
-      } else {
-        this.password = "";
-        if (!this.dialogVisible) {
-          this.dialogVisible = true;
-        }
-        if (this.dialogVisible) {
-          this.$message.error("密码错误，请重试！");
-        }
-      }
+      superagent
+        .post(this.url + "/verifyPwd")
+        .set("Content-Type", "application/json")
+        .send({ pwd: this.password })
+        .timeout(10000)
+        .then(res => {
+          if (res.body) {
+            this.isVerify = true;
+            this.dialogVisible = false;
+            if (this.savePwd) {
+              localStorage.setItem("pwd", this.password);
+            }
+          } else {
+            this.password = "";
+            if (!this.dialogVisible) {
+              this.dialogVisible = true;
+            }
+            if (this.dialogVisible) {
+              this.$message.error("密码错误，请重试！");
+            }
+          }
+        })
+        .catch(e => {
+          this.password = "";
+          if (!this.dialogVisible) {
+            this.dialogVisible = true;
+          }
+          if (this.dialogVisible) {
+            this.$message.error("密码错误，请重试！");
+          }
+        });
     },
     getlocalStorage: function() {
       this.password = localStorage.getItem("pwd");

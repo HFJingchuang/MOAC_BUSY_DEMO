@@ -9,5 +9,6 @@ router.post('/closeMicroChain', scs.closeMicroChain);
 router.post('/initConfig', scs.config);
 router.get('/getContract', scs.getContract);
 router.get('/getInitConfig', scs.getInitConfig);
+router.post('/verifyPwd', scs.verifyPwd);
 
 module.exports = router;

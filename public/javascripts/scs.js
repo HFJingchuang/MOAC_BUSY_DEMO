@@ -278,6 +278,7 @@ function config(req, res, next) {
     let newConfig = req.body;
     var configPath = path.resolve(__dirname, "../../initConfig.json");
     var config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    newConfig['privatekey'] = config["privatekey"];
     newConfig['savedAddr'] = config["savedAddr"];
     newConfig['password'] = config["password"];
     fs.writeFileSync(configPath, JSON.stringify(newConfig, null, '\t'), 'utf8');
@@ -293,7 +294,23 @@ function getContract(req, res, next) {
 function getInitConfig(req, res, next) {
     var configPath = path.resolve(__dirname, "../../initConfig.json");
     const initConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    delete initConfig["privatekey"];
+    delete initConfig["savedAddr"];
+    delete initConfig["password"];
     res.send(initConfig)
+}
+
+function verifyPwd(req, res, next) {
+    console.log(req.body.pwd);
+    let configPath = path.resolve(__dirname, "../../initConfig.json");
+    let initConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    let password = initConfig["password"];
+    let verifyPwd = req.body.pwd;
+    if (verifyPwd === password) {
+        res.send(true)
+    } else {
+        res.send(false)
+    }
 }
 
 //===============SCS Functions===============================================
@@ -616,7 +633,7 @@ async function clearMicroChain() {
             let now = (new Date).getTime();
             let hours = (now - time) / 3600000;
             if (hours >= 4) {
-               await closeMicroChain(microChain);
+                await closeMicroChain(microChain);
                 logs.splice(i, 1);
             }
         }
@@ -664,5 +681,6 @@ module.exports = {
     closeMicroChain: closeMicroChain,
     config: config,
     getContract: getContract,
-    getInitConfig: getInitConfig
+    getInitConfig: getInitConfig,
+    verifyPwd: verifyPwd
 }
