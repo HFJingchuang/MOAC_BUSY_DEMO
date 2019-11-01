@@ -50,7 +50,7 @@
                     <br />
                     余额：{{getBalance(configData.baseaddr)}} Moac
                   </div>
-                  <el-form-item label="应用链操作账号" prop="baseaddr">
+                  <el-form-item label="应用链发起账号" prop="baseaddr">
                     <el-input
                       readonly
                       v-model="configData.baseaddr"
@@ -64,14 +64,14 @@
                 </el-form-item>
                 <el-tooltip placement="right" effect="light">
                   <div slot="content">应用链链运行后需要的SCS的最小数量，建议数量为3；</div>
-                  <el-form-item label="所需最小应用链数" prop="minScsRequired">
+                  <el-form-item label="所需最小SCS节点数" prop="minScsRequired">
                     <el-input
                       v-model="configData.minScsRequired"
                       type="number"
                       readonly
                       maxlength="1"
                       @change="getScsNumber"
-                      placeholder="请输入最小应用链数，当前允许值：1，3，5，7"
+                      placeholder="请输入最小SCS节点数，当前允许值：1，3，5，7"
                     ></el-input>
                   </el-form-item>
                 </el-tooltip>
@@ -223,7 +223,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="isVerify" label="注册应用链监听节点">
+        <el-tab-pane v-if="isVerify" label="应用链数据查看/监控">
           <el-alert
             v-show="isMonitor"
             class="deployInfo"
@@ -448,7 +448,7 @@
                 <br />3. 我部署完成了，想看看应用链的详细信息该怎么做呢？
               </p>
               <h6 class="qa">
-                首先，只需在【注册应用链监听节点】标签页中点击【一键注册】按钮，等待20秒左右完成注册。
+                首先，只需在【应用链查看/监控】标签页中点击【一键注册】按钮，等待20秒左右完成注册。
                 <br />然后，跳转到【应用链浏览器】标签页即可看到应用链相关信息。
                 <br />或者在
                 <el-link type="primary" href="http://testnet.moac.io/scinfo">墨客测试浏览器应用链注册页面</el-link>依次填入
@@ -463,7 +463,7 @@
               <h6 class="qa">
                 顾名思义就是关闭已经部署的应用链，点击【关闭应用链】按钮等待2分钟左右即完成发送关闭请求。
                 请求发送后，需等待一轮flush后生效（本项目设定flushRound为40,flushRound即子链刷新周期（以母链block生成数量为准）），关闭后SCS不再出块，相关应用链维护费用也将退回到应用链部署账号中。
-                <br />注意！为了防止资源的不必要浪费，本项目部署的应用链每隔4小时会清理一次。所以你可以手动关闭应用链，或者等待4小时后自动关闭。
+                <br />注意！为了防止资源的不必要浪费，本项目部署的应用链每隔4小时会清理一次。所以你可以手动关闭应用链，或者等待自动关闭。
               </h6>
             </div>
           </div>
@@ -710,7 +710,8 @@ export default {
             // console.log(res);
             if (res.status === 200) {
               this.isDeploy = true;
-              this.deployTitle = "开始部署，此过程需要10分钟左右，请耐心等待...";
+              this.deployTitle =
+                "开始部署，此过程需要10分钟左右，请耐心等待...";
               this.deployColse = false;
               this.deployButton = true;
               this.$http.post(this.url + "/deploy").then(
