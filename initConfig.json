@@ -1,12 +1,12 @@
 {
-	"baseaddr": "0x7a2dc129b3d794e4e8a009c83ffd7a2412f5e326",
-	"privatekey": "86736091a441dffeb8656e731474433aaf531c4adab0497fa38d36215f44f18d",
+	"baseaddr": "",
+	"privatekey": "",
 	"scs": [
-		"0xC8da3C2A4f6E4400A338c0D7927F2Cb80ab85500",
-		"0xcE3F4447D08120f1AC4ADAa90fAA996c14220497",
-		"0xdEcBCEd1Ceb0ca579c7489c616259D261edd8e3f"
+		"",
+		"",
+		""
 	],
-	"vnodeVia": "0x668F273aF881d2eb13736425a0d72921fdA7e52D",
+	"vnodeVia": "",
 	"vnodeUri": "http://127.0.0.1:8545",
 	"vnodeConnectUrl": "127.0.0.1:50062",
 	"minScsRequired": "3",
@@ -15,8 +15,8 @@
 	"minScsDeposit": 1,
 	"microChainDeposit": 1,
 	"addScs": [],
-	"monitorAddr": "0x79b5a120980b8F0fA137D3BEe4Eccb5Fef4dd88c",
+	"monitorAddr": "",
 	"monitorLink": "127.0.0.1:2345",
-	"savedAddr": "0x7a2dc129b3d794e4e8a009c83ffd7a2412f5e330",
-	"password": "moac123"
+	"savedAddr": "",
+	"password": ""
 }
