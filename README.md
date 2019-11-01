@@ -57,7 +57,7 @@ nohup ./scsserver-linux-amd64 --password "123456" --rpcdebug --rpcaddr "0.0.0.0"
 
 ### 启动服务
 ```javascript
-nohup npm run start &
+nohup forever bin/www &
 ```
 
 
