@@ -110,7 +110,7 @@
         "prettier": "^1.12.1",
         "sass-loader": "^7.1.0",
         "solc": "0.4.24",
-        "ssh2": "^0.8.4",
+        "ssh2": "^1.4.0",
         "superagent": "^5.1.0",
         "vue": "^2.5.2",
         "vue-resource": "^1.5.1",
